@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Claro tv+ | TV and streaming all in one place</title>
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "c4f75250-16a7-4cfc-adfe-af4abf96192a",
+        serviceWorkerPath: "OneSignalSDKWorker.js",
+      });
+    });
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     /* ===== RESET & BASE ===== */
@@ -1142,15 +1151,10 @@ const moviesData = [
   { title: 'Forever Paquitas', color: '#2a3a2a' },
 ];
 
-// ===== ONESIGNAL INITIALIZATION =====
-window.OneSignalDeferred = window.OneSignalDeferred || [];
+// ===== ONESIGNAL SESSION RESTORE =====
+// init() is in <head> — this just restores the user session once helpers are defined
 OneSignalDeferred.push(async function(OneSignal) {
-  await OneSignal.init({
-    appId: "c4f75250-16a7-4cfc-adfe-af4abf96192a",
-  });
   logOS('init', 'SDK initialized with appId: c4f75250-16a7-4cfc-adfe-af4abf96192a');
-
-  // Restore session on load
   const stored = getStoredUser();
   if (stored) {
     currentUser = stored;
@@ -1606,14 +1610,3 @@ function toggleDebug() {
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  initHero();
-  renderServices();
-  renderCarousels();
-  updateCartUI();
-
-  // Track initial page view
-  osTrackEvent('page_view', { page: 'home_landing' });
-});
-</script>
-</body>
-</html>
