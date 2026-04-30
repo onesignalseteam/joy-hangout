@@ -3,1617 +3,2057 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claro tv+ | TV and streaming all in one place</title>
+  <title>Backcountry — Premium Outdoor Gear & Apparel</title>
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
+    // ===== APP CONFIG =====
+    // The OneSignal App ID for this specific demo. Update if a new OneSignal app is created for Backcountry.
+    window.APP_ID = "c4f75250-16a7-4cfc-adfe-af4abf96192a";
+    window.IDENTITY_API = "https://onesignal-api-server-production-6bda.up.railway.app";
+
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
-        appId: "c4f75250-16a7-4cfc-adfe-af4abf96192a",
+        appId: window.APP_ID,
         serviceWorkerPath: "OneSignalSDKWorker.js",
       });
     });
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* ===== RESET & BASE ===== */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: 'Roboto', sans-serif;
-      background: #0a0a0a;
-      color: #fff;
+      font-family: 'Inter', 'Flama', Helvetica, Arial, sans-serif;
+      background: #ffffff;
+      color: #333333;
       overflow-x: hidden;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
     a { text-decoration: none; color: inherit; }
-    button { cursor: pointer; font-family: inherit; border: none; outline: none; }
+    button { cursor: pointer; font-family: inherit; border: none; outline: none; background: none; }
     img { max-width: 100%; display: block; }
 
     /* ===== DESIGN TOKENS ===== */
     :root {
-      --claro-red: #DA291C;
-      --claro-red-hover: #b8221a;
-      --claro-dark: #151515;
-      --claro-darker: #0a0a0a;
-      --claro-card: #1d1d1d;
-      --claro-card-hover: #2a2a2a;
-      --claro-gray: #808080;
-      --claro-light-gray: #b0b0b0;
-      --claro-white: #ffffff;
-      --claro-overlay: rgba(21, 21, 21, 0.7);
-      --claro-pink: #B4205D;
-      --claro-orange: #FF8901;
-      --claro-blue: #04498A;
-      --transition: all 0.3s ease;
+      --bc-text: #333333;
+      --bc-text-muted: #757575;
+      --bc-text-light: #999999;
+      --bc-border: #cccccc;
+      --bc-border-light: #e6e6e6;
+      --bc-bg: #ffffff;
+      --bc-bg-soft: #f4f4f4;
+      --bc-button: #000000;
+      --bc-button-text: #ffffff;
+      --bc-sale: #bb2200;
+      --bc-promo-banner: #b3411d;
+      --bc-summit-cream: #e6d391;
+      --bc-summit-cream-light: #f0e0a8;
+      --bc-cta-green: #28857c;
+      --bc-radius: 0px;
+      --transition: all 0.2s ease;
     }
 
-    /* ===== NOTIFICATION BANNER ===== */
-    .notification-banner {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: var(--claro-red);
-      color: white;
-      padding: 10px 20px;
-      text-align: center;
-      font-size: 14px;
-      z-index: 10000;
-      transform: translateY(-100%);
-      transition: transform 0.4s ease;
+    /* ===== TOP NOTIFICATION BAR ===== */
+    .top-bar {
+      background: #1a1a1a;
+      color: #ffffff;
+      font-size: 13px;
+      padding: 8px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
     }
-    .notification-banner.show { transform: translateY(0); }
-    .notification-banner .close-notif {
-      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-      background: none; color: white; font-size: 18px; cursor: pointer; border: none;
-    }
+    .top-bar a { color: #ffffff; text-decoration: underline; cursor: pointer; }
+    .top-bar .top-bar-center { flex: 1; text-align: center; }
+    .top-bar .top-bar-right { display: flex; align-items: center; gap: 6px; }
 
     /* ===== HEADER ===== */
     .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 70%, transparent 100%);
-      padding: 16px 40px;
+      background: var(--bc-bg);
+      border-bottom: 1px solid var(--bc-border-light);
+      padding: 16px 24px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      transition: background 0.3s;
+      gap: 24px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
-    .header.scrolled { background: rgba(0,0,0,0.95); }
     .logo {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
+      color: var(--bc-text);
       letter-spacing: -0.5px;
-    }
-    .logo .claro-text { color: var(--claro-red); }
-    .logo .tv-text { color: var(--claro-white); }
-    .logo .plus { color: var(--claro-red); font-size: 28px; font-weight: 700; }
-    .nav-links { display: flex; align-items: center; gap: 28px; }
-    .nav-links a {
-      font-size: 14px;
-      font-weight: 400;
-      color: var(--claro-light-gray);
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--claro-white); }
-    .nav-right { display: flex; align-items: center; gap: 16px; }
-    .btn-profile {
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      background: var(--claro-card);
-      border: 2px solid var(--claro-gray);
-      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
       cursor: pointer;
-      transition: var(--transition);
+    }
+    .logo svg { width: 32px; height: 32px; }
+    .search-bar {
+      flex: 1;
+      max-width: 720px;
       position: relative;
     }
-    .btn-profile:hover { border-color: var(--claro-red); }
-    .btn-profile svg { width: 20px; height: 20px; fill: var(--claro-white); }
-    .cart-btn {
+    .search-bar input {
+      width: 100%;
+      padding: 10px 16px 10px 44px;
+      border: 1px solid var(--bc-text);
+      background: var(--bc-bg);
+      font-size: 14px;
+      color: var(--bc-text);
+      font-family: inherit;
+    }
+    .search-bar svg {
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: var(--bc-text);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-shrink: 0;
       position: relative;
-      width: 38px; height: 38px;
+    }
+    .header-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--bc-text);
+      font-weight: 500;
+    }
+    .header-action svg { width: 18px; height: 18px; }
+    .header-action .label-stack { display: flex; flex-direction: column; line-height: 1.1; }
+    .header-action .label-stack .small { font-size: 11px; color: var(--bc-text-muted); font-weight: 400; }
+    .cart-link { position: relative; }
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: var(--bc-sale);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      background: var(--claro-card);
-      border: 2px solid var(--claro-gray);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ===== NAV ===== */
+    .nav {
+      background: var(--bc-bg);
+      border-bottom: 1px solid var(--bc-border-light);
+      padding: 0 24px;
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      position: sticky;
+      top: 73px;
+      z-index: 999;
+      flex-wrap: wrap;
+    }
+    .nav a {
+      padding: 14px 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--bc-text);
+      letter-spacing: 0.3px;
       transition: var(--transition);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
     }
-    .cart-btn:hover { border-color: var(--claro-red); }
-    .cart-btn svg { width: 18px; height: 18px; fill: var(--claro-white); }
-    .cart-badge {
-      position: absolute; top: -4px; right: -4px;
-      background: var(--claro-red);
-      color: white; font-size: 11px; font-weight: 700;
-      width: 18px; height: 18px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      display: none;
+    .nav a:hover { border-bottom-color: var(--bc-text); }
+    .nav a.sale { color: var(--bc-sale); }
+
+    /* ===== PROMO BAR ===== */
+    .promo-bar {
+      background: var(--bc-promo-banner);
+      color: #ffffff;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      text-align: center;
+      padding: 14px 24px;
+      font-size: 13px;
+      gap: 24px;
     }
-    .cart-badge.show { display: flex; }
+    .promo-bar > div { display: flex; flex-direction: column; gap: 2px; }
+    .promo-bar strong { font-weight: 700; }
+    .promo-bar a { text-decoration: underline; color: #ffffff; cursor: pointer; }
+    .promo-bar .promo-divider { border-right: 1px solid rgba(255,255,255,0.3); }
 
     /* ===== HERO ===== */
     .hero {
       position: relative;
-      height: 90vh;
-      min-height: 600px;
-      overflow: hidden;
-    }
-    .hero-slider { position: relative; width: 100%; height: 100%; }
-    .hero-slide {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      opacity: 0;
-      transition: opacity 1s ease;
+      background-image: url('https://content.backcountry.com/v3/assets/blt170538b9078c9a03/69badbc3321ab5ba8e603bfa/HP_Card_Pruzan.jpg');
       background-size: cover;
       background-position: center;
+      height: 520px;
+      display: flex;
+      align-items: center;
+      padding: 0 64px;
     }
-    .hero-slide.active { opacity: 1; }
-    .hero-slide::after {
-      content: '';
+    .hero::after {
+      content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%),
-                  linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 40%);
+      background: linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 60%);
+      pointer-events: none;
     }
     .hero-content {
-      position: absolute;
-      bottom: 15%;
-      left: 60px;
-      z-index: 10;
-      max-width: 440px;
+      position: relative;
+      z-index: 2;
+      max-width: 540px;
+      color: #ffffff;
     }
-    .hero-label {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 8px;
+    .hero h1 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 84px;
+      line-height: 0.95;
+      font-weight: 400;
+      margin-bottom: 32px;
+      letter-spacing: -1px;
     }
-    .hero-sub {
-      font-size: 16px;
-      color: var(--claro-light-gray);
-      margin-bottom: 20px;
+    .hero p {
+      font-size: 18px;
+      margin-bottom: 32px;
+      max-width: 420px;
+      line-height: 1.5;
     }
-    .streaming-badges {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .streaming-badges .badge-label {
-      font-size: 12px;
-      color: var(--claro-gray);
-      background: rgba(255,255,255,0.1);
-      padding: 4px 10px;
-      border-radius: 4px;
-    }
-    .streaming-badges img {
-      width: 32px; height: 32px;
-      border-radius: 6px;
-      object-fit: contain;
-      background: #222;
-    }
-    .hero-price {
-      font-size: 14px;
-      color: var(--claro-light-gray);
-      margin-bottom: 20px;
-    }
-    .hero-price .currency { font-size: 16px; }
-    .hero-price .amount { font-size: 52px; font-weight: 700; color: white; }
-    .hero-price .cents { font-size: 24px; font-weight: 700; color: white; vertical-align: super; }
-    .hero-price .period { font-size: 16px; color: var(--claro-light-gray); }
-    .btn-primary {
+    .btn-shop-now {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--claro-red);
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
-      padding: 14px 40px;
-      border-radius: 8px;
-      border: none;
-      transition: var(--transition);
-    }
-    .btn-primary:hover { background: var(--claro-red-hover); transform: translateY(-1px); }
-    .btn-primary svg { width: 18px; height: 18px; fill: white; }
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      color: white;
-      font-size: 14px;
+      color: #ffffff;
+      font-size: 18px;
       font-weight: 500;
-      padding: 10px 24px;
-      border-radius: 8px;
-      border: 1px solid var(--claro-gray);
+      letter-spacing: 1px;
+      border-bottom: 2px solid #ffffff;
+      padding-bottom: 4px;
       transition: var(--transition);
-      margin-top: 12px;
-    }
-    .btn-secondary:hover { border-color: white; background: rgba(255,255,255,0.1); }
-    .hero-dots {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      z-index: 10;
-    }
-    .hero-dots .dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.3);
       cursor: pointer;
-      transition: var(--transition);
+      background: none;
     }
-    .hero-dots .dot.active { background: var(--claro-red); width: 28px; border-radius: 5px; }
+    .btn-shop-now:hover { letter-spacing: 1.5px; }
+    .btn-shop-now svg { width: 20px; height: 20px; }
 
     /* ===== SECTION HEADERS ===== */
-    .section-title {
-      text-align: center;
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 40px;
-      padding-top: 60px;
+    .section { padding: 56px 40px; }
+    .section h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 32px;
+      font-weight: 400;
+      margin-bottom: 32px;
+      color: var(--bc-text);
+      letter-spacing: -0.3px;
     }
 
-    /* ===== PLANS SECTION ===== */
-    .plans-section {
-      background: var(--claro-darker);
-      padding: 60px 40px 80px;
-    }
-    .plans-grid {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      max-width: 1000px;
-      margin: 0 auto;
-      flex-wrap: wrap;
-    }
-    .plan-card {
-      background: var(--claro-card);
-      border: 2px solid #333;
-      border-radius: 12px;
-      width: 300px;
-      overflow: hidden;
-      transition: var(--transition);
-      position: relative;
-    }
-    .plan-card:hover { border-color: var(--claro-red); transform: translateY(-4px); }
-    .plan-card.recommended { border-color: var(--claro-red); }
-    .plan-card.recommended::before {
-      content: 'RECOMMENDED';
-      position: absolute;
-      top: -1px; left: 50%;
-      transform: translateX(-50%);
-      background: var(--claro-red);
-      color: white;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 16px;
-      border-radius: 0 0 8px 8px;
-      letter-spacing: 1px;
-    }
-    .plan-header {
-      padding: 30px 20px 16px;
-      text-align: center;
-      border-bottom: 1px solid #333;
-    }
-    .plan-header h3 { font-size: 18px; font-weight: 700; }
-    .plan-header .channels { font-size: 14px; color: var(--claro-light-gray); margin-top: 4px; }
-    .plan-services { padding: 0; }
-    .plan-service {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 16px;
-      border-bottom: 1px solid #2a2a2a;
-      gap: 8px;
-      font-size: 14px;
-    }
-    .plan-service .service-name { font-weight: 500; }
-    .plan-service .service-tier {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 3px;
-      font-weight: 500;
-    }
-    .tier-anuncios { background: var(--claro-gray); color: white; }
-    .tier-padrao { background: var(--claro-orange); color: white; }
-    .tier-premium { background: var(--claro-pink); color: white; }
-    .plan-footer {
-      padding: 20px;
-      text-align: center;
-    }
-    .plan-price {
-      font-size: 14px;
-      color: var(--claro-light-gray);
-      margin-bottom: 16px;
-    }
-    .plan-price .p-curr { font-size: 14px; }
-    .plan-price .p-amount { font-size: 36px; font-weight: 700; color: white; }
-    .plan-price .p-cents { font-size: 18px; font-weight: 700; color: white; vertical-align: super; }
-    .plan-price .p-period { font-size: 14px; }
-    .plan-footer .btn-primary { width: 100%; justify-content: center; padding: 12px; }
-
-    /* ===== STREAMING SERVICES BROWSE ===== */
-    .services-section {
-      background: var(--claro-dark);
-      padding: 60px 40px 80px;
-    }
-    .services-intro {
-      text-align: center;
-      max-width: 700px;
-      margin: 0 auto 40px;
-      color: var(--claro-light-gray);
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    .services-grid {
+    /* ===== CATEGORY GRID ===== */
+    .category-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
     }
-    .service-card {
-      background: var(--claro-card);
-      border-radius: 16px;
+    .category-card {
+      position: relative;
+      aspect-ratio: 3/4;
       overflow: hidden;
-      transition: var(--transition);
       cursor: pointer;
+      background: var(--bc-bg-soft);
     }
-    .service-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(218,41,28,0.15); }
-    .service-card-img {
+    .category-card img {
       width: 100%;
-      height: 180px;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .category-card:hover img { transform: scale(1.05); }
+    .category-card .category-label {
+      position: absolute;
+      left: 24px;
+      bottom: 24px;
+      color: #ffffff;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.1;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      max-width: 70%;
+      letter-spacing: -0.2px;
+    }
+
+    /* ===== PROMO CARDS ===== */
+    .promo-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 24px;
+      padding: 32px 40px 48px;
+    }
+    .promo-card { display: flex; flex-direction: column; gap: 12px; }
+    .promo-card-image {
+      aspect-ratio: 1;
+      background: var(--bc-bg-soft);
+      overflow: hidden;
+    }
+    .promo-card-image img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
-    .service-card-body { padding: 20px; }
-    .service-card-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
+    .promo-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--bc-text);
+      margin-top: 4px;
     }
-    .service-card-logo img { width: 36px; height: 36px; border-radius: 8px; object-fit: contain; }
-    .service-card-logo span { font-size: 18px; font-weight: 700; }
-    .service-card-features {
+    .promo-card p {
       font-size: 13px;
-      color: var(--claro-light-gray);
-      line-height: 1.8;
-      margin-bottom: 16px;
+      color: var(--bc-text-muted);
+      margin-bottom: 8px;
     }
-    .service-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .service-included {
-      font-size: 12px;
-      color: #4CAF50;
-      font-weight: 500;
-      background: rgba(76,175,80,0.1);
-      padding: 4px 10px;
-      border-radius: 4px;
-    }
-    .btn-add-cart {
-      background: var(--claro-red);
-      color: white;
-      padding: 8px 20px;
-      border-radius: 6px;
+    .btn-shop-now-black {
+      align-self: flex-start;
+      padding: 8px 16px;
+      background: var(--bc-button);
+      color: var(--bc-button-text);
       font-size: 13px;
       font-weight: 600;
-      border: none;
+      letter-spacing: 0.5px;
+      cursor: pointer;
       transition: var(--transition);
     }
-    .btn-add-cart:hover { background: var(--claro-red-hover); }
-    .btn-add-cart.added { background: #4CAF50; }
+    .btn-shop-now-black:hover { background: #2a2a2a; }
 
-    /* ===== CONTENT CAROUSEL ===== */
-    .content-section {
-      background: var(--claro-darker);
-      padding: 60px 0 80px;
+    /* ===== SUMMIT+ MEMBERSHIP STRIP ===== */
+    .summit-strip {
+      background: var(--bc-summit-cream);
+      padding: 48px 40px;
     }
-    .carousel-container {
-      max-width: 100%;
-      overflow: hidden;
-      padding: 0 40px;
-    }
-    .carousel-label {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      padding: 0 40px;
-    }
-    .carousel-track {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      padding-bottom: 10px;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .carousel-track::-webkit-scrollbar { display: none; }
-    .content-card {
-      min-width: 180px;
-      height: 260px;
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: transform 0.3s;
-    }
-    .content-card:hover { transform: scale(1.05); }
-    .content-card img { width: 100%; height: 100%; object-fit: cover; }
-    .content-card .content-title {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,0.9));
-      padding: 30px 10px 12px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    /* ===== CART DRAWER ===== */
-    .cart-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 5000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .cart-overlay.open { opacity: 1; pointer-events: auto; }
-    .cart-drawer {
-      position: fixed;
-      top: 0; right: 0;
-      width: 400px;
-      max-width: 90vw;
-      height: 100vh;
-      background: var(--claro-dark);
-      z-index: 5001;
-      transform: translateX(100%);
-      transition: transform 0.3s;
-      display: flex;
-      flex-direction: column;
-    }
-    .cart-drawer.open { transform: translateX(0); }
-    .cart-drawer-header {
+    .summit-strip-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 24px;
-      border-bottom: 1px solid #333;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
-    .cart-drawer-header h2 { font-size: 20px; font-weight: 700; }
-    .cart-drawer-close {
-      background: none; border: none; color: white; font-size: 24px; cursor: pointer;
+    .summit-strip h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: #1a1a1a;
+      margin: 0;
     }
-    .cart-items { flex: 1; overflow-y: auto; padding: 20px 24px; }
-    .cart-item {
+    .summit-strip .summit-cta {
+      background: var(--bc-button);
+      color: var(--bc-button-text);
+      padding: 10px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+    .summit-perks {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+    }
+    .summit-perk {
+      background: var(--bc-summit-cream-light);
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+    .summit-perk:hover { border-color: #1a1a1a; }
+    .summit-perk-icon {
+      width: 64px;
+      height: 64px;
+      border: 2px solid #1a1a1a;
+      border-radius: 50%;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 16px 0;
-      border-bottom: 1px solid #2a2a2a;
+      justify-content: center;
+      margin-bottom: 12px;
+      background: var(--bc-summit-cream);
+      font-size: 22px;
+      font-weight: 700;
     }
-    .cart-item img { width: 48px; height: 48px; border-radius: 8px; object-fit: contain; }
-    .cart-item-info { flex: 1; }
-    .cart-item-info h4 { font-size: 15px; font-weight: 600; }
-    .cart-item-info p { font-size: 13px; color: var(--claro-gray); }
-    .cart-item-remove {
-      background: none; border: none; color: var(--claro-red);
-      font-size: 13px; cursor: pointer; font-weight: 500;
+    .summit-perk-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+      text-decoration: underline;
     }
-    .cart-empty { text-align: center; padding: 60px 20px; color: var(--claro-gray); }
-    .cart-footer {
-      padding: 20px 24px;
-      border-top: 1px solid #333;
-    }
-    .cart-total {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px;
-    }
-    .cart-total span:first-child { font-size: 16px; color: var(--claro-light-gray); }
-    .cart-total span:last-child { font-size: 24px; font-weight: 700; }
-    .cart-footer .btn-primary { width: 100%; justify-content: center; }
 
-    /* ===== AUTH MODALS ===== */
+    /* ===== FEATURED ROW ===== */
+    .feature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+    .feature-card-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .feature-card {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .feature-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .feature-card:hover img { transform: scale(1.04); }
+    .feature-card-meta h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--bc-text);
+      margin-bottom: 4px;
+    }
+    .feature-card-meta p {
+      font-size: 14px;
+      color: var(--bc-text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* ===== BROWSE PAGE ===== */
+    .browse-page { display: none; }
+    .browse-page.active { display: block; }
+    .home-page.hidden { display: none; }
+    .browse-header {
+      padding: 32px 40px 16px;
+      border-bottom: 1px solid var(--bc-border-light);
+    }
+    .breadcrumb {
+      font-size: 12px;
+      color: var(--bc-text-muted);
+      margin-bottom: 8px;
+    }
+    .breadcrumb a { cursor: pointer; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .browse-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--bc-text);
+      margin-bottom: 4px;
+    }
+    .browse-results-count {
+      font-size: 13px;
+      color: var(--bc-text-muted);
+    }
+    .browse-quick-filters {
+      display: flex;
+      gap: 24px;
+      padding: 20px 40px 0;
+      flex-wrap: wrap;
+    }
+    .browse-quick-filters a {
+      font-size: 14px;
+      color: var(--bc-text);
+      cursor: pointer;
+      padding: 6px 0;
+      transition: var(--transition);
+    }
+    .browse-quick-filters a:hover { color: var(--bc-sale); }
+
+    .browse-body {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 32px;
+      padding: 24px 40px 56px;
+    }
+    .browse-filters {
+      border-right: 1px solid var(--bc-border-light);
+      padding-right: 24px;
+    }
+    .filter-group {
+      border-bottom: 1px solid var(--bc-border-light);
+      padding: 16px 0;
+    }
+    .filter-group h4 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--bc-text);
+    }
+    .filter-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .filter-list li {
+      font-size: 13px;
+      color: var(--bc-text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    .filter-list li:hover { color: var(--bc-sale); }
+    .filter-list li .count { color: var(--bc-text-muted); }
+
+    .browse-results {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .sort-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--bc-text-muted);
+    }
+    .sort-bar select {
+      border: 1px solid var(--bc-border);
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      background: var(--bc-bg);
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .product-card {
+      background: var(--bc-bg);
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+    .product-card:hover { transform: translateY(-2px); }
+    .product-card .card-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--bc-bg);
+      border: 1px solid var(--bc-border);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      z-index: 2;
+    }
+    .product-card-image {
+      aspect-ratio: 1;
+      background: var(--bc-bg-soft);
+      overflow: hidden;
+      position: relative;
+    }
+    .product-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .product-card-swatches {
+      display: flex;
+      gap: 6px;
+      padding: 8px 0;
+    }
+    .swatch {
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--bc-border);
+      cursor: pointer;
+    }
+    .swatch.active { border: 2px solid var(--bc-text); }
+    .product-card .brand {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--bc-text);
+      margin-top: 4px;
+    }
+    .product-card .name {
+      font-size: 13px;
+      color: var(--bc-text);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .product-card .price-row {
+      margin-top: 8px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .product-card .price {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--bc-text);
+    }
+    .product-card .price-orig {
+      font-size: 13px;
+      color: var(--bc-text-muted);
+      text-decoration: line-through;
+    }
+    .product-card .price-off {
+      font-size: 13px;
+      color: var(--bc-sale);
+      font-weight: 700;
+    }
+    .product-card .stars {
+      color: #f5c518;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .product-card .stars .count { color: var(--bc-text-muted); margin-left: 6px; }
+    .product-card .add-to-cart {
+      margin-top: 12px;
+      padding: 10px;
+      background: var(--bc-button);
+      color: var(--bc-button-text);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      width: 100%;
+      cursor: pointer;
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .product-card:hover .add-to-cart { opacity: 1; }
+
+    /* ===== MODALS ===== */
     .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.8);
-      z-index: 6000;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
       display: none;
       align-items: center;
       justify-content: center;
+      z-index: 9999;
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: var(--claro-dark);
-      border: 1px solid #333;
-      border-radius: 16px;
+      background: var(--bc-bg);
+      width: 100%;
+      max-width: 420px;
       padding: 40px;
-      width: 420px;
-      max-width: 90vw;
       position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--bc-text);
+      margin-bottom: 8px;
+    }
+    .modal .modal-sub {
+      font-size: 13px;
+      color: var(--bc-text-muted);
+      margin-bottom: 24px;
     }
     .modal-close {
-      position: absolute; top: 16px; right: 16px;
-      background: none; border: none; color: var(--claro-gray); font-size: 24px; cursor: pointer;
-    }
-    .modal-close:hover { color: white; }
-    .modal h2 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    .modal p.modal-desc {
-      font-size: 14px;
-      color: var(--claro-gray);
-      text-align: center;
-      margin-bottom: 28px;
-    }
-    .form-group { margin-bottom: 18px; }
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--claro-light-gray);
-      margin-bottom: 6px;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 8px;
-      border: 1px solid #444;
-      background: #1a1a1a;
-      color: white;
-      font-size: 15px;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus { border-color: var(--claro-red); outline: none; }
-    .form-group input::placeholder { color: #555; }
-    .modal .btn-primary { width: 100%; justify-content: center; margin-top: 8px; }
-    .modal-switch {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-      color: var(--claro-gray);
-    }
-    .modal-switch a { color: var(--claro-red); font-weight: 500; cursor: pointer; }
-    .modal-switch a:hover { text-decoration: underline; }
-
-    /* ===== USER MENU DROPDOWN ===== */
-    .user-dropdown {
       position: absolute;
-      top: 50px;
-      right: 0;
-      background: var(--claro-dark);
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 16px;
-      min-width: 220px;
-      display: none;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    }
-    .user-dropdown.show { display: block; }
-    .user-dropdown .user-info {
-      padding-bottom: 12px;
-      border-bottom: 1px solid #333;
-      margin-bottom: 12px;
-    }
-    .user-dropdown .user-info h4 { font-size: 15px; font-weight: 600; }
-    .user-dropdown .user-info p { font-size: 12px; color: var(--claro-gray); margin-top: 2px; }
-    .user-dropdown .dropdown-item {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 10px 12px;
-      background: none;
-      border: none;
-      color: var(--claro-light-gray);
-      font-size: 14px;
-      border-radius: 6px;
+      top: 16px;
+      right: 16px;
+      font-size: 22px;
+      color: var(--bc-text);
       cursor: pointer;
-      transition: var(--transition);
-    }
-    .user-dropdown .dropdown-item:hover { background: var(--claro-card); color: white; }
-    .user-dropdown .dropdown-item.logout { color: var(--claro-red); }
-
-    /* ===== ACTIVATION SUCCESS ===== */
-    .activation-modal .modal { text-align: center; }
-    .activation-modal .success-icon {
-      width: 64px; height: 64px;
-      background: rgba(76,175,80,0.15);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-    }
-    .activation-modal .success-icon svg { width: 32px; height: 32px; fill: #4CAF50; }
-
-    /* ===== FOOTER ===== */
-    .footer {
-      background: #111;
-      padding: 40px;
-      border-top: 1px solid #222;
-    }
-    .footer-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .footer-links {
+      width: 32px;
+      height: 32px;
       display: flex;
+      align-items: center;
       justify-content: center;
-      gap: 24px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
     }
-    .footer-links a { font-size: 14px; color: var(--claro-gray); transition: color 0.2s; }
-    .footer-links a:hover { color: var(--claro-white); }
-    .footer-copy { font-size: 12px; color: #555; }
-
-    /* ===== ONESIGNAL DEBUG PANEL ===== */
-    .os-debug {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(21,21,21,0.95);
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 16px;
-      min-width: 300px;
-      max-width: 380px;
-      z-index: 9999;
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px;
+    }
+    .form-row label {
       font-size: 12px;
-      max-height: 320px;
-      overflow-y: auto;
+      font-weight: 700;
+      color: var(--bc-text);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .form-row label .optional {
+      font-weight: 400;
+      color: var(--bc-text-muted);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .form-row input {
+      padding: 10px 12px;
+      border: 1px solid var(--bc-border);
+      font-size: 14px;
+      color: var(--bc-text);
+      font-family: inherit;
+      background: var(--bc-bg);
+    }
+    .form-row input:focus { outline: none; border-color: var(--bc-text); }
+    .form-row .helper {
+      font-size: 11px;
+      color: var(--bc-text-muted);
+      margin-top: 4px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px;
+      background: var(--bc-summit-cream-light);
+      margin: 12px 0 20px;
+      border-left: 3px solid var(--bc-summit-cream);
+    }
+    .checkbox-row input { margin-top: 3px; }
+    .checkbox-row label {
+      font-size: 13px;
+      color: var(--bc-text);
+      line-height: 1.4;
+      cursor: pointer;
+    }
+    .checkbox-row label strong { font-weight: 700; }
+    .btn-primary {
+      background: var(--bc-button);
+      color: var(--bc-button-text);
+      padding: 12px;
+      width: 100%;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-primary:hover { background: #2a2a2a; }
+    .btn-secondary {
+      background: var(--bc-bg);
+      color: var(--bc-text);
+      padding: 12px;
+      width: 100%;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      border: 1px solid var(--bc-text);
+      margin-top: 8px;
+    }
+    .modal-toggle {
+      text-align: center;
+      font-size: 13px;
+      color: var(--bc-text-muted);
+      margin-top: 20px;
+    }
+    .modal-toggle a {
+      color: var(--bc-text);
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .form-error {
+      background: rgba(187, 34, 0, 0.08);
+      border-left: 3px solid var(--bc-sale);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--bc-sale);
+      margin-bottom: 16px;
       display: none;
     }
-    .os-debug.show { display: block; }
-    .os-debug h4 { color: var(--claro-red); font-size: 13px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-    .os-debug .log-entry {
-      padding: 6px 0;
-      border-bottom: 1px solid #222;
-      color: var(--claro-light-gray);
-      font-family: monospace;
-      font-size: 11px;
-      word-break: break-all;
+    .form-error.show { display: block; }
+
+    /* ===== ACCOUNT VIEW ===== */
+    .account-modal { max-width: 520px; }
+    .account-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--bc-border-light);
+      margin-bottom: 20px;
     }
-    .os-debug .log-entry .method { color: #4CAF50; font-weight: 600; }
-    .os-debug .log-entry .data { color: #FFD54F; }
-    .os-toggle {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 42px; height: 42px;
-      background: var(--claro-red);
+    .account-avatar {
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
-      border: none;
-      color: white;
+      background: var(--bc-button);
+      color: var(--bc-button-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .account-info-name {
       font-size: 18px;
-      z-index: 9998;
+      font-weight: 700;
+      color: var(--bc-text);
+    }
+    .account-info-uuid {
+      font-size: 11px;
+      color: var(--bc-text-muted);
+      margin-top: 2px;
+      font-family: monospace;
+    }
+    .summit-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bc-summit-cream);
+      color: #1a1a1a;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+    .account-section { margin-bottom: 24px; }
+    .account-section h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--bc-text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .tag-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .tag-row input {
+      padding: 10px 12px;
+      border: 1px solid var(--bc-border);
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--bc-text);
+      background: var(--bc-bg);
+    }
+
+    /* ===== PROFILE BUTTON ===== */
+    .profile-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bc-bg-soft);
+      border: 1px solid var(--bc-border);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(218,41,28,0.4);
+      color: var(--bc-text);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .profile-button.logged-in {
+      background: var(--bc-button);
+      color: var(--bc-button-text);
+      border-color: var(--bc-button);
     }
 
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-      .header { padding: 12px 16px; }
-      .nav-links { display: none; }
-      .hero-content { left: 20px; bottom: 10%; max-width: 90%; }
-      .hero-price .amount { font-size: 36px; }
-      .plans-section, .services-section { padding: 40px 16px 60px; }
-      .plan-card { width: 100%; }
-      .services-grid { grid-template-columns: 1fr; }
-      .cart-drawer { width: 100%; }
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: #1a1a1a;
+      color: #ffffff;
+      padding: 14px 22px;
+      font-size: 14px;
+      max-width: 360px;
+      z-index: 10001;
+      transform: translateX(120%);
+      transition: transform 0.4s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { border-left: 4px solid var(--bc-cta-green); }
+    .toast.error { border-left: 4px solid var(--bc-sale); }
+
+    /* ===== ONESIGNAL DEBUG PANEL ===== */
+    .os-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--bc-button);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10000;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      letter-spacing: 0.4px;
+    }
+    .os-debug {
+      position: fixed;
+      bottom: 96px;
+      right: 24px;
+      width: 420px;
+      max-height: 480px;
+      background: #0f0f0f;
+      color: #d4d4d4;
+      border: 1px solid #333;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 11px;
+      display: none;
+      flex-direction: column;
+      z-index: 10000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .os-debug.open { display: flex; }
+    .os-debug-header {
+      padding: 10px 14px;
+      background: #1a1a1a;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+    .os-debug-header .clear-log {
+      color: #999;
+      cursor: pointer;
+      font-weight: 400;
+      font-size: 11px;
+    }
+    .os-debug-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+    }
+    .log-entry {
+      padding: 5px 0;
+      border-bottom: 1px solid #1a1a1a;
+      word-break: break-all;
+    }
+    .log-entry .time { color: #666; }
+    .log-entry .method { color: #6cb6ff; font-weight: 700; margin: 0 6px; }
+    .log-entry .data { color: #d4d4d4; }
+
+    /* ===== USER DROPDOWN ===== */
+    .user-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: var(--bc-bg);
+      border: 1px solid var(--bc-border);
+      width: 240px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      display: none;
+      z-index: 10001;
+    }
+    .user-dropdown.open { display: block; }
+    .user-dropdown .dropdown-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--bc-border-light);
+    }
+    .user-dropdown .dropdown-header .name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--bc-text);
+    }
+    .user-dropdown .dropdown-header .email {
+      font-size: 12px;
+      color: var(--bc-text-muted);
+      margin-top: 2px;
+    }
+    .user-dropdown .dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 13px;
+      color: var(--bc-text);
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+    .user-dropdown .dropdown-item:hover { background: var(--bc-bg-soft); }
+    .user-dropdown .dropdown-item.divider {
+      border-top: 1px solid var(--bc-border-light);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: #1a1a1a;
+      color: #cccccc;
+      padding: 48px 40px 24px;
+      font-size: 13px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .footer-grid h4 {
+      color: #ffffff;
+      font-size: 13px;
+      margin-bottom: 16px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+    .footer-grid a {
+      display: block;
+      padding: 4px 0;
+      color: #cccccc;
+      cursor: pointer;
+    }
+    .footer-grid a:hover { color: #ffffff; }
+    .footer-bottom {
+      max-width: 1280px;
+      margin: 32px auto 0;
+      padding-top: 16px;
+      border-top: 1px solid #333;
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .promo-bar { grid-template-columns: 1fr; gap: 8px; }
+      .category-grid { grid-template-columns: repeat(2, 1fr); }
+      .promo-grid { grid-template-columns: repeat(2, 1fr); }
+      .summit-perks { grid-template-columns: repeat(3, 1fr); }
+      .feature-row { grid-template-columns: 1fr; }
+      .browse-body { grid-template-columns: 1fr; }
+      .browse-filters { display: none; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav { gap: 16px; overflow-x: auto; }
+      .hero h1 { font-size: 56px; }
+      .header { flex-wrap: wrap; }
+      .search-bar { order: 3; flex-basis: 100%; }
     }
   </style>
 </head>
 <body>
 
-<!-- Notification Banner -->
-<div class="notification-banner" id="notifBanner">
-  <span id="notifText"></span>
-  <button class="close-notif" onclick="hideNotification()">&times;</button>
+<!-- ===== TOP BAR ===== -->
+<div class="top-bar">
+  <div><a onclick="showSummitInfo()">What's Summit Club?</a></div>
+  <div class="top-bar-center">
+    <strong>Exclusive Deals & Giveaways:</strong>
+    <a onclick="trackPromo('summit_plus_days')">Summit+ Days Is On</a>
+  </div>
+  <div class="top-bar-right"><span>Find Your Store</span></div>
 </div>
 
-<!-- Header -->
-<header class="header" id="mainHeader">
-  <div class="logo">
-    <span class="claro-text">Claro</span>
-    <span class="tv-text">tv</span><span class="plus">+</span>
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="logo" onclick="goHome()">
+    <svg viewBox="0 0 64 64" fill="currentColor">
+      <circle cx="32" cy="32" r="30" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M22 28 L26 22 L30 28 L34 24 L40 30 L42 38 L36 42 L28 40 L22 36 Z" fill="currentColor"/>
+      <circle cx="38" cy="26" r="1.5" fill="#ffffff"/>
+    </svg>
+    <span>Backcountry</span>
   </div>
-  <nav class="nav-links">
-    <a href="#plans" onclick="trackNavClick('plans')">Plans</a>
-    <a href="#services" onclick="trackNavClick('services')">Services</a>
-    <a href="#content" onclick="trackNavClick('content')">Content</a>
-  </nav>
-  <div class="nav-right">
-    <button class="cart-btn" id="cartBtn" onclick="toggleCart()">
-      <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-      <span class="cart-badge" id="cartBadge">0</span>
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" placeholder="Search gear & apparel" onkeydown="handleSearch(event)">
+  </div>
+  <div class="header-actions">
+    <div class="header-action" style="cursor:pointer" onclick="trackPromo('expert_help')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--bc-cta-green)" stroke-width="2"><path d="M5 4l3-2 3 2v18l-3-2-3 2z"/></svg>
+      <span>Expert Help</span>
+    </div>
+    <button class="profile-button" id="profileBtn" onclick="handleProfileClick()" aria-label="Account">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </button>
-    <div style="position:relative">
-      <button class="btn-profile" id="profileBtn" onclick="handleProfileClick()">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    <div class="header-action" id="signInLabel" onclick="handleProfileClick()" style="cursor:pointer">
+      <div class="label-stack">
+        <span style="font-weight:700">Sign In</span>
+        <span class="small">For Member Perks</span>
+      </div>
+    </div>
+    <a class="header-action cart-link" onclick="goCart()" style="cursor:pointer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span class="cart-count" id="cartCount">0</span>
+    </a>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="dropdown-header">
+        <div class="name" id="dropdownName">—</div>
+        <div class="email" id="dropdownEmail">—</div>
+      </div>
+      <button class="dropdown-item" onclick="openAccount()">My Account</button>
+      <button class="dropdown-item" onclick="showToast('Order history is not part of this demo.', 'success')">Order History</button>
+      <button class="dropdown-item divider" onclick="handleLogout()" style="color: var(--bc-sale)">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NAV ===== -->
+<nav class="nav">
+  <a onclick="browseCategory('mens')">Men</a>
+  <a onclick="browseCategory('womens')">Women</a>
+  <a onclick="browseCategory('kids')">Kids</a>
+  <a onclick="browseCategory('footwear')">Footwear</a>
+  <a onclick="browseCategory('camp')">Camp</a>
+  <a onclick="browseCategory('bike')">Bike</a>
+  <a onclick="browseCategory('climb')">Climb</a>
+  <a onclick="browseCategory('travel')">Travel</a>
+  <a onclick="browseCategory('ski')">Ski</a>
+  <a onclick="browseCategory('snowboard')">Snowboard</a>
+  <a onclick="browseCategory('activities')">Activities</a>
+  <a onclick="browseCategory('brands')">Brands</a>
+  <a onclick="browseCategory('guides')">Guides</a>
+  <a class="sale" onclick="browseCategory('sale')">Sale</a>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<main class="home-page" id="homePage">
+  <div class="promo-bar">
+    <div class="promo-divider">
+      <strong>Up To 40% Off Spring Sale</strong>
+      <a onclick="browseCategory('sale')">Shop now</a>
+    </div>
+    <div class="promo-divider">
+      <strong>Exclusive Deals & Giveaways</strong>
+      <a onclick="trackPromo('summit_plus_days')">Summit+ Days is on</a>
+    </div>
+    <div>
+      <strong>Need A Mother's Day Gift?</strong>
+      <a onclick="browseCategory('mothers-day')">Shop gifts for adventure moms</a>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Spring<br>New Arrivals</h1>
+      <p>Lightweight kits, breathable layers, and trail-ready footwear from your favorite brands.</p>
+      <button class="btn-shop-now" onclick="browseCategory('mens')">
+        Shop Now
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
-      <div class="user-dropdown" id="userDropdown">
-        <div class="user-info">
-          <h4 id="dropdownName">-</h4>
-          <p id="dropdownEmail">-</p>
-          <p id="dropdownUUID" style="color:#555;font-size:11px;margin-top:4px">UUID: -</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Shop the season</h2>
+    <div class="category-grid">
+      <div class="category-card" onclick="browseCategory('mens')">
+        <img src="https://content.backcountry.com/promo_upload/bcs/2026/BC26_0053/Flyout_mens.jpg" alt="Men's Apparel">
+        <div class="category-label">Men's<br>Apparel</div>
+      </div>
+      <div class="category-card" onclick="browseCategory('womens')">
+        <img src="https://content.backcountry.com/promo_upload/bcs/2026/BC26_0094/Flyout.jpg" alt="Women's Apparel">
+        <div class="category-label">Women's<br>Apparel</div>
+      </div>
+      <div class="category-card" onclick="browseCategory('camp')">
+        <img src="https://content.backcountry.com/promo_upload/bcs/2026/BC26_0066/Flyout_Camp.jpeg" alt="Camp & Hike">
+        <div class="category-label">Camp & Hike</div>
+      </div>
+      <div class="category-card" onclick="browseCategory('bike')">
+        <img src="https://content.backcountry.com/promo_upload/bcs/2025/PC020/Flyout_bike.jpg" alt="Bike">
+        <div class="category-label">Bike</div>
+      </div>
+      <div class="category-card" onclick="browseCategory('travel')">
+        <img src="https://content.backcountry.com/promo_upload/bcs/2025/PC020/Flyout_travel.jpg" alt="Travel">
+        <div class="category-label">Travel</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="promo-grid">
+    <div class="promo-card">
+      <div class="promo-card-image">
+        <img src="https://content.backcountry.com/images/items/large/TNF/TNFZEBT/SUM.jpg" alt="New Nike ACG Zegama">
+      </div>
+      <h3>New Nike ACG Zegama</h3>
+      <p>Nike's most technical trail runner</p>
+      <button class="btn-shop-now-black" onclick="trackPromo('new_arrivals_nike')">Shop Now</button>
+    </div>
+    <div class="promo-card">
+      <div class="promo-card-image">
+        <img src="https://content.backcountry.com/promo_upload/bcs/2026/BC26_0066/Flyout_Camp.jpeg" alt="Camp New Arrivals">
+      </div>
+      <h3>Camp New Arrivals</h3>
+      <p>Tents, sleep systems, packs &amp; much more</p>
+      <button class="btn-shop-now-black" onclick="browseCategory('camp')">Shop Now</button>
+    </div>
+    <div class="promo-card">
+      <div class="promo-card-image">
+        <img src="https://content.backcountry.com/v3/assets/blt5b6d109bb475bb1b/69badbc3daccab16090b9a5e/HP_Card_Raide.jpg" alt="New Brand: Coalatree">
+      </div>
+      <h3>New Brand: Coalatree</h3>
+      <p>Functional, eco-minded gear &amp; apparel</p>
+      <button class="btn-shop-now-black" onclick="trackPromo('new_brand_coalatree')">Shop Now</button>
+    </div>
+    <div class="promo-card">
+      <div class="promo-card-image">
+        <img src="https://content.backcountry.com/v3/assets/bltd642a235ebde260f/69badbc32a26b81deb71b69b/HP_Card_LL_Bean.jpg" alt="Mother's Day Gifts">
+      </div>
+      <h3>Mother's Day Gifts</h3>
+      <p>For every adventure mom</p>
+      <button class="btn-shop-now-black" onclick="browseCategory('mothers-day')">Shop Now</button>
+    </div>
+    <div class="promo-card">
+      <div class="promo-card-image">
+        <img src="https://content.backcountry.com/v3/assets/blt170538b9078c9a03/69badbc3321ab5ba8e603bfa/HP_Card_Pruzan.jpg" alt="Gifts For Grads">
+      </div>
+      <h3>Gifts For Grads</h3>
+      <p>Caps off. Adventure on.</p>
+      <button class="btn-shop-now-black" onclick="trackPromo('gifts_for_grads')">Shop Now</button>
+    </div>
+  </section>
+
+  <section class="summit-strip">
+    <div class="summit-strip-header">
+      <h2>Summit Club Days!</h2>
+      <button class="summit-cta" onclick="showSummitInfo()">Join Summit+</button>
+    </div>
+    <div class="summit-perks">
+      <div class="summit-perk" onclick="browseCategory('sale')">
+        <div class="summit-perk-icon">⛰</div>
+        <div class="summit-perk-label">Shop All Deals</div>
+      </div>
+      <div class="summit-perk" onclick="trackPromo('cash_back')">
+        <div class="summit-perk-icon">$</div>
+        <div class="summit-perk-label">Double Cash Back Weekend</div>
+      </div>
+      <div class="summit-perk" onclick="trackPromo('15_back')">
+        <div class="summit-perk-icon">15%</div>
+        <div class="summit-perk-label">15% Cash Back</div>
+      </div>
+      <div class="summit-perk" onclick="trackPromo('sun_protection')">
+        <div class="summit-perk-icon">☀</div>
+        <div class="summit-perk-label">Free Sun Protection</div>
+      </div>
+      <div class="summit-perk" onclick="trackPromo('500_giveaway')">
+        <div class="summit-perk-icon">$500</div>
+        <div class="summit-perk-label">Win A $500 Giveaway</div>
+      </div>
+      <div class="summit-perk" onclick="trackPromo('25_off_collection')">
+        <div class="summit-perk-icon">25%</div>
+        <div class="summit-perk-label">Extra 25% Off Collection</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Stock up on adventure</h2>
+    <div class="feature-row">
+      <div class="feature-card-wrap">
+        <div class="feature-card" onclick="browseCategory('camp')">
+          <img src="https://content.backcountry.com/promo_upload/bcs/2025/PC020/Flyout_hikecamp.jpg" alt="Up to 40% off Camp">
         </div>
-        <button class="dropdown-item" onclick="showPreferences()">Preferences</button>
-        <button class="dropdown-item logout" onclick="handleLogout()">Sign Out</button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- Hero Section -->
-<section class="hero">
-  <div class="hero-slider" id="heroSlider">
-    <div class="hero-slide active" style="background-image:url('https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/hbo/2026-mar-desktop.jpg')"></div>
-    <div class="hero-slide" style="background-image:url('https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/netflix/2026-mar-desktop.jpg')"></div>
-    <div class="hero-slide" style="background-image:url('https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/globoplay/2026-jan-desktop.png')"></div>
-    <div class="hero-slide" style="background-image:url('https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/amazon/2026-fev-desktop.jpg')"></div>
-    <div class="hero-slide" style="background-image:url('https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/disney/2026-fev-desktop.jpg')"></div>
-    <div class="hero-slide" style="background-image:url('https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/appletv/2026-fev-desktop.jpg')"></div>
-  </div>
-  <div class="hero-content">
-    <h1 class="hero-label">Claro tv+ App</h1>
-    <p class="hero-sub">TV and streaming all in one place</p>
-    <div class="streaming-badges">
-      <span class="badge-label">+120 channels</span>
-      <img src="https://mondrian.claro.com.br/channels/ott/default/globoplay.png" alt="Globoplay">
-      <img src="https://mondrian.claro.com.br/channels/ott/default/netflix.png" alt="Netflix">
-      <img src="https://mondrian.claro.com.br/channels/ott/default/hbo-max.png" alt="HBO Max">
-      <img src="https://mondrian.claro.com.br/channels/ott/default/apple-tvplus.png" alt="Apple TV+">
-      <img src="https://mondrian.claro.com.br/channels/ott/default/amazon-prime.png" alt="Amazon Prime">
-      <img src="https://mondrian.claro.com.br/channels/ott/default/disney-plus.png" alt="Disney+">
-    </div>
-    <div class="hero-price">
-      <span class="currency">R$</span>
-      <span class="amount">99</span><span class="cents">,90</span>
-      <span class="period">/mo</span>
-    </div>
-    <button class="btn-primary" onclick="handleSubscribe('hero_cta')">
-      <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-      Subscribe Now
-    </button>
-    <button class="btn-secondary" onclick="showLogin()">Already a Claro customer? Sign In</button>
-  </div>
-  <div class="hero-dots" id="heroDots"></div>
-</section>
-
-<!-- Plans Section -->
-<section class="plans-section" id="plans">
-  <h2 class="section-title">A plan for every profile</h2>
-  <div class="plans-grid">
-    <!-- Plan 1 -->
-    <div class="plan-card recommended">
-      <div class="plan-header">
-        <h3>Claro tv+ App</h3>
-        <p class="channels">+ 120 Channels</p>
-      </div>
-      <div class="plan-services">
-        <div class="plan-service"><span class="service-name">Globoplay</span> <span class="service-tier tier-premium">premium</span></div>
-        <div class="plan-service"><span class="service-name">Netflix</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-        <div class="plan-service"><span class="service-name">HBO Max</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-        <div class="plan-service"><span class="service-name">Apple TV</span></div>
-        <div class="plan-service"><span class="service-name">Amazon Prime</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-        <div class="plan-service"><span class="service-name">Disney+</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-      </div>
-      <div class="plan-footer">
-        <div class="plan-price">
-          <span class="p-curr">R$</span><span class="p-amount">99</span><span class="p-cents">,90</span><span class="p-period">/mo</span>
+        <div class="feature-card-meta">
+          <h3>Up To 40% Off Camp</h3>
+          <p>Tents, sleep systems &amp; more</p>
+          <button class="btn-shop-now-black" onclick="browseCategory('camp')">Shop Now</button>
         </div>
-        <button class="btn-primary" onclick="handleSubscribe('plan_basico')">
-          <svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-          Subscribe
-        </button>
       </div>
-    </div>
-    <!-- Plan 2 -->
-    <div class="plan-card">
-      <div class="plan-header">
-        <h3>Claro tv+ App</h3>
-        <p class="channels">+ 120 Channels</p>
-      </div>
-      <div class="plan-services">
-        <div class="plan-service"><span class="service-name">Globoplay</span> <span class="service-tier tier-premium">premium</span></div>
-        <div class="plan-service"><span class="service-name">Netflix</span> <span class="service-tier tier-padrao">standard</span></div>
-        <div class="plan-service"><span class="service-name">HBO Max</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-        <div class="plan-service"><span class="service-name">Apple TV</span></div>
-        <div class="plan-service"><span class="service-name">Amazon Prime</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-        <div class="plan-service"><span class="service-name">Disney+</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-      </div>
-      <div class="plan-footer">
-        <div class="plan-price">
-          <span class="p-curr">R$</span><span class="p-amount">123</span><span class="p-cents">,90</span><span class="p-period">/mo</span>
+      <div class="feature-card-wrap">
+        <div class="feature-card" onclick="browseCategory('bike')">
+          <img src="https://content.backcountry.com/promo_upload/bcs/2025/PC020/Flyout_bike.jpg" alt="Up to 40% off Bike">
         </div>
-        <button class="btn-primary" onclick="handleSubscribe('plan_padrao')">
-          <svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-          Subscribe
-        </button>
-      </div>
-    </div>
-    <!-- Plan 3 -->
-    <div class="plan-card">
-      <div class="plan-header">
-        <h3>Claro tv+ App</h3>
-        <p class="channels">+ 120 Channels</p>
-      </div>
-      <div class="plan-services">
-        <div class="plan-service"><span class="service-name">Globoplay</span> <span class="service-tier tier-premium">premium</span></div>
-        <div class="plan-service"><span class="service-name">Netflix</span> <span class="service-tier tier-premium">premium</span></div>
-        <div class="plan-service"><span class="service-name">HBO Max</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-        <div class="plan-service"><span class="service-name">Apple TV</span></div>
-        <div class="plan-service"><span class="service-name">Amazon Prime</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-        <div class="plan-service"><span class="service-name">Disney+</span> <span class="service-tier tier-anuncios">w/ ads</span></div>
-      </div>
-      <div class="plan-footer">
-        <div class="plan-price">
-          <span class="p-curr">R$</span><span class="p-amount">138</span><span class="p-cents">,90</span><span class="p-period">/mo</span>
+        <div class="feature-card-meta">
+          <h3>Up To 40% Off Bike</h3>
+          <p>Bikes, components &amp; more</p>
+          <button class="btn-shop-now-black" onclick="browseCategory('bike')">Shop Now</button>
         </div>
-        <button class="btn-primary" onclick="handleSubscribe('plan_premium')">
-          <svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-          Subscribe
-        </button>
+      </div>
+      <div class="feature-card-wrap">
+        <div class="feature-card" onclick="browseCategory('climb')">
+          <img src="https://content.backcountry.com/promo_upload/bcs/2026/BC26_0066/Flyout_Climb.jpeg" alt="Up to 40% off Climb">
+        </div>
+        <div class="feature-card-meta">
+          <h3>Up To 40% Off Climb</h3>
+          <p>Shoes, ropes &amp; more</p>
+          <button class="btn-shop-now-black" onclick="browseCategory('climb')">Shop Now</button>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</main>
 
-<!-- Services Section -->
-<section class="services-section" id="services">
-  <h2 class="section-title">Your TV package + 6 streaming services in one offer!</h2>
-  <p class="services-intro">Binge-watch the biggest hits from TV and streaming whenever and wherever you want, on every screen</p>
-  <div class="services-grid" id="servicesGrid">
-    <!-- Populated by JS -->
+<!-- ===== BROWSE PAGE ===== -->
+<main class="browse-page" id="browsePage">
+  <div class="browse-header">
+    <div class="breadcrumb"><a onclick="goHome()">Home</a> &nbsp;&rsaquo;&nbsp; <span id="browseBreadcrumb">Men's Clothing</span></div>
+    <h1 id="browseTitle">Men's Clothing</h1>
+    <div class="browse-results-count"><span id="browseResultsCount">6</span> results</div>
   </div>
-</section>
-
-<!-- Content Carousel -->
-<section class="content-section" id="content">
-  <h2 class="section-title">Explore the catalog</h2>
-  <div style="margin-bottom:40px">
-    <h3 class="carousel-label">Trending Series</h3>
-    <div class="carousel-container">
-      <div class="carousel-track" id="seriesCarousel"></div>
+  <div class="browse-quick-filters">
+    <a onclick="filterChip('jackets')">Jackets</a>
+    <a onclick="filterChip('pants')">Pants</a>
+    <a onclick="filterChip('hoodies')">Hoodies &amp; Sweaters</a>
+    <a onclick="filterChip('baselayers')">Baselayers</a>
+    <a onclick="filterChip('activewear')">Activewear</a>
+    <a onclick="filterChip('patagonia')">Patagonia</a>
+    <a onclick="filterChip('the-north-face')">The North Face</a>
+    <a onclick="filterChip('backcountry')">Backcountry</a>
+    <a onclick="filterChip('fjallraven')">Fjallraven</a>
+  </div>
+  <div class="browse-body">
+    <aside class="browse-filters">
+      <div class="filter-group">
+        <h4>Categories</h4>
+        <ul class="filter-list">
+          <li onclick="filterChip('shirts')"><span>Men's Shirts</span><span class="count">(1403)</span></li>
+          <li onclick="filterChip('jackets')"><span>Men's Jackets</span><span class="count">(1245)</span></li>
+          <li onclick="filterChip('pants')"><span>Men's Pants</span><span class="count">(673)</span></li>
+          <li onclick="filterChip('activewear')"><span>Men's Activewear</span><span class="count">(476)</span></li>
+          <li onclick="filterChip('hoodies')"><span>Hoodies &amp; Sweaters</span><span class="count">(380)</span></li>
+          <li onclick="filterChip('shorts')"><span>Men's Shorts</span><span class="count">(337)</span></li>
+        </ul>
+      </div>
+      <div class="filter-group">
+        <h4>Brand</h4>
+        <ul class="filter-list">
+          <li onclick="filterChip('the-north-face')"><span>The North Face</span><span class="count">(334)</span></li>
+          <li onclick="filterChip('patagonia')"><span>Patagonia</span><span class="count">(314)</span></li>
+          <li onclick="filterChip('columbia')"><span>Columbia</span><span class="count">(222)</span></li>
+          <li onclick="filterChip('mountain-hardwear')"><span>Mountain Hardwear</span><span class="count">(165)</span></li>
+          <li onclick="filterChip('helly-hansen')"><span>Helly Hansen</span><span class="count">(160)</span></li>
+        </ul>
+      </div>
+      <div class="filter-group">
+        <h4>Price</h4>
+        <ul class="filter-list">
+          <li><span>Under $50</span></li>
+          <li><span>$50–$100</span></li>
+          <li><span>$100–$200</span></li>
+          <li><span>$200+</span></li>
+        </ul>
+      </div>
+    </aside>
+    <div class="browse-results">
+      <div class="sort-bar">
+        Sort By:
+        <select>
+          <option>Featured</option>
+          <option>Price (Low to High)</option>
+          <option>Price (High to Low)</option>
+          <option>New Arrivals</option>
+        </select>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
     </div>
   </div>
-  <div>
-    <h3 class="carousel-label">Movies & Documentaries</h3>
-    <div class="carousel-container">
-      <div class="carousel-track" id="moviesCarousel"></div>
-    </div>
-  </div>
-</section>
+</main>
 
-<!-- Footer -->
-<footer class="footer">
-  <div class="footer-content">
-    <div class="footer-links">
-      <a href="#">Terms of Use</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Help Center</a>
-      <a href="#">Login Issues</a>
-      <a href="#">Explore Claro tv+</a>
-    </div>
-    <p class="footer-copy">&copy; 2026 clarotvmais.com.br. All rights reserved.</p>
-  </div>
-</footer>
-
-<!-- Cart Drawer -->
-<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
-<div class="cart-drawer" id="cartDrawer">
-  <div class="cart-drawer-header">
-    <h2>My Cart</h2>
-    <button class="cart-drawer-close" onclick="toggleCart()">&times;</button>
-  </div>
-  <div class="cart-items" id="cartItems">
-    <div class="cart-empty" id="cartEmpty">Your cart is empty</div>
-  </div>
-  <div class="cart-footer" id="cartFooter" style="display:none">
-    <div class="cart-total">
-      <span>Monthly total</span>
-      <span id="cartTotal">R$ 0,00</span>
-    </div>
-    <button class="btn-primary" onclick="activateServices()">Activate Services</button>
-  </div>
-</div>
-
-<!-- Register Modal -->
-<div class="modal-overlay" id="registerModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
-    <h2>Create Account</h2>
-    <p class="modal-desc">Create your Claro tv+ account to access all content</p>
-    <form onsubmit="handleRegister(event)">
-      <div class="form-group">
-        <label>Full name</label>
-        <input type="text" id="regName" placeholder="Your name" required>
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="regEmail" placeholder="you@email.com" required>
-      </div>
-      <div class="form-group">
-        <label>Phone</label>
-        <input type="tel" id="regPhone" placeholder="+1 555 123-4567" required>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="regPassword" placeholder="Minimum 6 characters" required minlength="6">
-      </div>
-      <button type="submit" class="btn-primary">Create Account</button>
-    </form>
-    <p class="modal-switch">Already have an account? <a onclick="showLogin()">Sign In</a></p>
-  </div>
-</div>
-
-<!-- Login Modal -->
+<!-- ===== LOGIN MODAL ===== -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
-    <h2>Sign In</h2>
-    <p class="modal-desc">Access your Claro tv+ account</p>
+    <h2>Welcome back</h2>
+    <p class="modal-sub">Sign in to your Backcountry account.</p>
+    <div class="form-error" id="loginError"></div>
     <form onsubmit="handleLogin(event)">
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" id="loginName" placeholder="Your name" required>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="loginPassword" placeholder="Your password" required>
+      <div class="form-row">
+        <label>Your name</label>
+        <input type="text" id="loginName" required>
       </div>
       <button type="submit" class="btn-primary">Sign In</button>
     </form>
-    <p class="modal-switch">Don't have an account? <a onclick="showRegister()">Create account</a></p>
-  </div>
-</div>
-
-<!-- Preferences Modal -->
-<div class="modal-overlay" id="preferencesModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('preferencesModal')">&times;</button>
-    <h2>Preferences</h2>
-    <p class="modal-desc">Personalize your Claro tv+ experience</p>
-    <form onsubmit="savePreferences(event)">
-      <div class="form-group">
-        <label>Favorite genre</label>
-        <select id="prefGenre" style="width:100%;padding:12px 16px;border-radius:8px;border:1px solid #444;background:#1a1a1a;color:white;font-size:15px;">
-          <option value="">Select...</option>
-          <option value="action">Action</option>
-          <option value="comedy">Comedy</option>
-          <option value="drama">Drama</option>
-          <option value="documentary">Documentary</option>
-          <option value="horror">Horror</option>
-          <option value="romance">Romance</option>
-          <option value="scifi">Sci-Fi</option>
-          <option value="sports">Sports</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Preferred language</label>
-        <select id="prefLang" style="width:100%;padding:12px 16px;border-radius:8px;border:1px solid #444;background:#1a1a1a;color:white;font-size:15px;">
-          <option value="en">English</option>
-          <option value="pt-BR">Portuguese</option>
-          <option value="es">Spanish</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-          <input type="checkbox" id="prefNotif" checked style="width:18px;height:18px;accent-color:var(--claro-red)">
-          Receive notifications about new content
-        </label>
-      </div>
-      <button type="submit" class="btn-primary">Save Preferences</button>
-    </form>
-  </div>
-</div>
-
-<!-- Activation Success Modal -->
-<div class="modal-overlay activation-modal" id="activationModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('activationModal')">&times;</button>
-    <div class="success-icon">
-      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <div class="modal-toggle">
+      Not a member? <a onclick="showRegister()">Create an account</a>
     </div>
-    <h2>Services Activated!</h2>
-    <p class="modal-desc" id="activationMsg">Your services have been successfully activated.</p>
-    <button class="btn-primary" onclick="closeModal('activationModal')" style="margin-top:16px">Continue</button>
   </div>
 </div>
 
-<!-- OneSignal Debug Toggle -->
+<!-- ===== REGISTER MODAL ===== -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
+    <h2>Create your account</h2>
+    <p class="modal-sub">Join Backcountry to save your gear list and unlock Summit+ perks.</p>
+    <div class="form-error" id="registerError"></div>
+    <form onsubmit="handleRegister(event)">
+      <div class="form-row">
+        <label>Your name</label>
+        <input type="text" id="regName" required>
+      </div>
+      <div class="form-row">
+        <label>Email <span class="optional">(optional)</span></label>
+        <input type="email" id="regEmail">
+        <span class="helper">Get receipts and Summit+ updates by email.</span>
+      </div>
+      <div class="form-row">
+        <label>Mobile <span class="optional">(optional)</span></label>
+        <input type="tel" id="regPhone" placeholder="+1 555 123 4567">
+        <span class="helper">Use E.164 format for SMS opt-in.</span>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="regSummit" checked>
+        <label for="regSummit"><strong>Join Summit+</strong> — earn cash back on every order, free shipping on $50+, and exclusive member-only deals.</label>
+      </div>
+      <button type="submit" class="btn-primary">Create Account</button>
+    </form>
+    <div class="modal-toggle">
+      Already a member? <a onclick="showLogin()">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ACCOUNT MODAL ===== -->
+<div class="modal-overlay" id="accountModal">
+  <div class="modal account-modal">
+    <button class="modal-close" onclick="closeModal('accountModal')">&times;</button>
+    <div class="account-header">
+      <div class="account-avatar" id="accountAvatar">B</div>
+      <div>
+        <div class="account-info-name" id="accountName">—</div>
+        <div class="account-info-uuid" id="accountUUID">UUID: —</div>
+        <div class="summit-badge" id="accountSummitBadge" style="display:none">⛰ Summit+ Member</div>
+      </div>
+    </div>
+
+    <div class="account-section">
+      <h3>Email</h3>
+      <div class="form-row" style="margin-bottom:8px">
+        <input type="email" id="accountEmail" placeholder="you@example.com">
+      </div>
+      <button class="btn-secondary" onclick="saveAccountEmail()">Save Email</button>
+    </div>
+
+    <div class="account-section">
+      <h3>Mobile (E.164)</h3>
+      <div class="form-row" style="margin-bottom:8px">
+        <input type="tel" id="accountPhone" placeholder="+15551234567">
+      </div>
+      <button class="btn-secondary" onclick="saveAccountPhone()">Save Mobile</button>
+    </div>
+
+    <div class="account-section">
+      <h3>Custom Tag</h3>
+      <div class="tag-row">
+        <input type="text" id="tagKey" placeholder="key (e.g. favourite_brand)">
+        <input type="text" id="tagValue" placeholder="value (e.g. patagonia)">
+      </div>
+      <button class="btn-secondary" onclick="saveAccountTag()">Save Tag</button>
+    </div>
+
+    <div class="account-section" style="border-top:1px solid var(--bc-border-light);padding-top:24px;margin-bottom:0">
+      <button class="btn-primary" style="background:var(--bc-sale)" onclick="handleLogout()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== ONESIGNAL DEBUG ===== -->
 <button class="os-toggle" onclick="toggleDebug()" title="OneSignal Debug">OS</button>
 <div class="os-debug" id="osDebug">
-  <h4>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="#DA291C"><circle cx="12" cy="12" r="10"/></svg>
+  <div class="os-debug-header">
     OneSignal SDK Log
-  </h4>
-  <div id="osLogEntries"></div>
+    <span class="clear-log" onclick="clearOSLog()">Clear</span>
+  </div>
+  <div class="os-debug-body" id="osLogEntries"></div>
 </div>
 
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h4>Customer Service</h4>
+      <a>Order Status</a><a>Returns</a><a>Shipping</a><a>Contact Us</a>
+    </div>
+    <div>
+      <h4>About Backcountry</h4>
+      <a>Our Story</a><a>Our Stores</a><a>Careers</a><a>Sustainability</a>
+    </div>
+    <div>
+      <h4>Summit+</h4>
+      <a>Join Summit+</a><a>Member Benefits</a><a>Earn Cash Back</a><a>Refer a Friend</a>
+    </div>
+    <div>
+      <h4>Connect</h4>
+      <a>Expert Help</a><a>Email Sign-up</a><a>Instagram</a><a>YouTube</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Backcountry — Demo build for OneSignal SE walk-throughs.</div>
+</footer>
+
 <script>
-// ===== STATE =====
-let currentUser = null;
-let cart = [];
-let heroIndex = 0;
-let osLogs = [];
+  // ============================================================
+  // STATE
+  // ============================================================
+  let currentUser = null;
+  let cart = [];
+  let osLogs = [];
 
-// ===== STREAMING SERVICES DATA =====
-const streamingServices = [
-  {
-    id: 'amazon',
-    name: 'Amazon Prime',
-    logo: 'https://mondrian.claro.com.br/channels/ott/default/amazon-prime.png',
-    img: 'https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/amazon/2026-fev-desktop.jpg',
-    features: '• 3 simultaneous screens\n• 6 user profiles\n• 4K Ultra HD\n• Content downloads\n• Amazon Music, Prime Gaming included',
-    tier: 'w/ ads',
-    price: 'Included'
-  },
-  {
-    id: 'netflix',
-    name: 'Netflix',
-    logo: 'https://mondrian.claro.com.br/channels/ott/default/netflix.png',
-    img: 'https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/netflix/2026-mar-desktop.jpg',
-    features: '• 2 simultaneous screens\n• 2 offline devices\n• Full HD\n• Premium and Standard ad-free tiers available',
-    tier: 'w/ ads',
-    price: 'Included'
-  },
-  {
-    id: 'disney',
-    name: 'Disney+',
-    logo: 'https://mondrian.claro.com.br/channels/ott/default/disney-plus.png',
-    img: 'https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/disney/2026-fev-desktop.jpg',
-    features: '• 2 simultaneous screens\n• Full HD\n• Stereo 5.1 audio\n• ESPN channels included\n• Disney, Pixar, Marvel, Star Wars',
-    tier: 'w/ ads',
-    price: 'Included'
-  },
-  {
-    id: 'hbo',
-    name: 'HBO Max',
-    logo: 'https://mondrian.claro.com.br/channels/ott/default/hbo-max.png',
-    img: 'https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/hbo/2026-mar-desktop.jpg',
-    features: '• 2 simultaneous screens\n• Full HD\n• HBO exclusive series\n• Warner Bros. movies',
-    tier: 'w/ ads',
-    price: 'Included'
-  },
-  {
-    id: 'globoplay',
-    name: 'Globoplay',
-    logo: 'https://mondrian.claro.com.br/channels/ott/default/globoplay.png',
-    img: 'https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/globoplay/2026-jan-desktop.png',
-    features: '• 2 simultaneous screens\n• 2 offline devices\n• Full HD\n• Globo channels, telenovelas, exclusive movies & series',
-    tier: 'premium',
-    price: 'Included'
-  },
-  {
-    id: 'appletv',
-    name: 'Apple TV+',
-    logo: 'https://mondrian.claro.com.br/channels/ott/default/apple-tvplus.png',
-    img: 'https://www.clarotvmais.com.br/img/plans/app-claro-tv-mais/appletv/2026-fev-desktop.jpg',
-    features: '• 5 simultaneous screens\n• 4K Ultra HD\n• Dolby Atmos audio\n• Exclusive movies & series',
-    tier: 'ad-free',
-    price: 'Included'
-  }
-];
+  const APP_ID = window.APP_ID;
+  const IDENTITY_API = window.IDENTITY_API;
+  const STORAGE_KEY = "onesignal_user_uuid";
 
-// ===== CONTENT CATALOG =====
-const seriesData = [
-  { title: 'Senna', color: '#1a3a2a' },
-  { title: 'The Division', color: '#2a1a1a' },
-  { title: 'Severance', color: '#1a1a3a' },
-  { title: 'Fatal Beauty', color: '#3a1a2a' },
-  { title: 'Peaky Blinders', color: '#1a2a2a' },
-  { title: 'Worth the Script', color: '#2a2a1a' },
-  { title: 'Anything Goes', color: '#1a3a1a' },
-  { title: 'The White Lotus', color: '#3a3a1a' },
-  { title: 'Stranger Things', color: '#2a1a3a' },
-  { title: 'Euphoria', color: '#3a1a3a' },
-  { title: 'The Last of Us', color: '#1a2a3a' },
-  { title: 'Silo', color: '#2a3a1a' },
-  { title: 'Game of Thrones', color: '#1a1a2a' },
-  { title: 'Lupin', color: '#2a2a2a' },
-];
-
-const moviesData = [
-  { title: 'Drug Heist', color: '#2a2a1a' },
-  { title: 'Spider-Man: Into the Spider-Verse', color: '#1a1a3a' },
-  { title: 'Wolf King', color: '#3a2a1a' },
-  { title: 'Our Dream', color: '#1a3a2a' },
-  { title: 'Inception', color: '#2a1a2a' },
-  { title: 'Naked and Afraid', color: '#1a2a1a' },
-  { title: 'Xuxa: The Documentary', color: '#3a1a1a' },
-  { title: 'Ted Lasso', color: '#1a3a3a' },
-  { title: 'Belo: Too Close to the Light', color: '#2a1a1a' },
-  { title: 'Kitchen Nightmares', color: '#1a1a1a' },
-  { title: 'The Studio', color: '#3a2a2a' },
-  { title: 'Forever Paquitas', color: '#2a3a2a' },
-];
-
-// ===== ONESIGNAL SESSION RESTORE =====
-// init() is in <head> — this just restores the user session once helpers are defined
-OneSignalDeferred.push(async function(OneSignal) {
-  logOS('init', 'SDK initialized with appId: c4f75250-16a7-4cfc-adfe-af4abf96192a');
-  const stored = getStoredUser();
-  if (stored) {
-    currentUser = stored;
-    await OneSignal.login(stored.uuid);
-    logOS('login', `Session restored: ${stored.uuid}`);
-    updateUIForLoggedIn();
-  }
-});
-
-// ===== UUID GENERATOR =====
-function generateUUID() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-  return result;
-}
-
-// ===== LOCAL STORAGE HELPERS =====
-function getStoredUser() {
-  try {
-    const data = JSON.parse(localStorage.getItem('claro_user'));
-    return data;
-  } catch { return null; }
-}
-function storeUser(user) {
-  localStorage.setItem('claro_user', JSON.stringify(user));
-}
-function clearUser() {
-  localStorage.removeItem('claro_user');
-}
-
-// ===== ONESIGNAL HELPERS =====
-function logOS(method, data) {
-  const entry = { method, data, time: new Date().toLocaleTimeString() };
-  osLogs.unshift(entry);
-  renderOSLogs();
-  console.log(`[OneSignal] ${method}:`, data);
-}
-
-function renderOSLogs() {
-  const container = document.getElementById('osLogEntries');
-  container.innerHTML = osLogs.slice(0, 30).map(l =>
-    `<div class="log-entry"><span style="color:#666">${l.time}</span> <span class="method">${l.method}()</span> <span class="data">${l.data}</span></div>`
-  ).join('');
-}
-
-async function osLogin(uuid) {
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.login(uuid);
-    logOS('login', `externalId: ${uuid}`);
-  });
-}
-
-async function osLogout() {
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.logout();
-    logOS('logout', 'User logged out');
-  });
-}
-
-async function osAddTags(tags) {
-  OneSignalDeferred.push(async function(OneSignal) {
-    OneSignal.User.addTags(tags);
-    logOS('addTags', JSON.stringify(tags));
-  });
-}
-
-async function osAddEmail(email) {
-  OneSignalDeferred.push(async function(OneSignal) {
-    OneSignal.User.addEmail(email);
-    logOS('addEmail', email);
-  });
-}
-
-async function osAddSms(phone) {
-  OneSignalDeferred.push(async function(OneSignal) {
-    OneSignal.User.addSms(phone);
-    logOS('addSms', phone);
-  });
-}
-
-async function osTrackEvent(name, properties) {
-  OneSignalDeferred.push(async function(OneSignal) {
-    OneSignal.User.trackEvent(name, properties || {});
-    logOS('trackEvent', `${name} ${JSON.stringify(properties || {})}`);
-  });
-}
-
-// ===== AUTH FUNCTIONS =====
-function showRegister() {
-  closeModal('loginModal');
-  document.getElementById('registerModal').classList.add('open');
-  osTrackEvent('page_view', { page: 'register_modal' });
-}
-
-function showLogin() {
-  closeModal('registerModal');
-  document.getElementById('loginModal').classList.add('open');
-  osTrackEvent('page_view', { page: 'login_modal' });
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-async function handleRegister(e) {
-  e.preventDefault();
-  const name = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const phone = document.getElementById('regPhone').value.trim();
-  const uuid = generateUUID();
-
-  currentUser = { name, email, phone, uuid };
-  storeUser(currentUser);
-
-  // OneSignal calls
-  await osLogin(uuid);
-  await osAddEmail(email);
-  if (phone) await osAddSms(phone);
-  await osAddTags({
-    user_name: name,
-    registration_date: new Date().toISOString().split('T')[0],
-    account_type: 'free'
-  });
-  await osTrackEvent('user_registered', { method: 'email', name: name });
-
-  closeModal('registerModal');
-  updateUIForLoggedIn();
-  showNotification(`Welcome, ${name}! Your account has been created.`);
-}
-
-async function handleLogin(e) {
-  e.preventDefault();
-  const name = document.getElementById('loginName').value.trim();
-  const stored = getStoredUser();
-
-  if (stored && stored.name.toLowerCase() === name.toLowerCase()) {
-    currentUser = stored;
-    await osLogin(stored.uuid);
-    await osAddTags({ last_login: new Date().toISOString().split('T')[0] });
-    await osTrackEvent('user_login', { method: 'returning_user' });
-    closeModal('loginModal');
-    updateUIForLoggedIn();
-    showNotification(`Welcome back, ${stored.name}!`);
-  } else if (name) {
-    // New user quick login
-    const uuid = generateUUID();
-    currentUser = { name, email: '', phone: '', uuid };
-    storeUser(currentUser);
-    await osLogin(uuid);
-    await osAddTags({
-      user_name: name,
-      registration_date: new Date().toISOString().split('T')[0],
-      account_type: 'free'
-    });
-    await osTrackEvent('user_login', { method: 'quick_login' });
-    closeModal('loginModal');
-    updateUIForLoggedIn();
-    showNotification(`Welcome, ${name}!`);
-  }
-}
-
-async function handleLogout() {
-  await osLogout();
-  currentUser = null;
-  clearUser();
-  cart = [];
-  updateCartUI();
-  updateUIForLoggedOut();
-  closeDropdown();
-  showNotification('You have been signed out.');
-}
-
-function updateUIForLoggedIn() {
-  const btn = document.getElementById('profileBtn');
-  btn.style.borderColor = '#4CAF50';
-  btn.innerHTML = `<span style="color:#4CAF50;font-weight:700;font-size:14px">${currentUser.name.charAt(0).toUpperCase()}</span>`;
-  document.getElementById('dropdownName').textContent = currentUser.name;
-  document.getElementById('dropdownEmail').textContent = currentUser.email || 'Email not provided';
-  document.getElementById('dropdownUUID').textContent = `UUID: ${currentUser.uuid}`;
-}
-
-function updateUIForLoggedOut() {
-  const btn = document.getElementById('profileBtn');
-  btn.style.borderColor = '';
-  btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-}
-
-function handleProfileClick() {
-  if (!currentUser) {
-    showRegister();
-  } else {
-    const dd = document.getElementById('userDropdown');
-    dd.classList.toggle('show');
-  }
-}
-
-function closeDropdown() {
-  document.getElementById('userDropdown').classList.remove('show');
-}
-
-// Close dropdown on outside click
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('#profileBtn') && !e.target.closest('#userDropdown')) {
-    closeDropdown();
-  }
-});
-
-// ===== PREFERENCES =====
-function showPreferences() {
-  closeDropdown();
-  document.getElementById('preferencesModal').classList.add('open');
-  osTrackEvent('page_view', { page: 'preferences' });
-}
-
-async function savePreferences(e) {
-  e.preventDefault();
-  const genre = document.getElementById('prefGenre').value;
-  const lang = document.getElementById('prefLang').value;
-  const notif = document.getElementById('prefNotif').checked;
-
-  const tags = {
-    preferred_genre: genre || 'none',
-    preferred_language: lang,
-    notifications_enabled: notif ? 'true' : 'false'
+  // ============================================================
+  // PRODUCT DATA — real Backcountry product images, no substitutions
+  // ============================================================
+  const PRODUCTS_BY_CATEGORY = {
+    mens: [
+      { brand: "The North Face", name: "Evolution Edge Of Light Half Dome Hoodie - Men's", price: 32.50, priceOrig: 65.00, offPct: 50, category: "mens-hoodies", badge: "50% Off",
+        img: "https://content.backcountry.com/images/items/large/TNF/TNFZEBT/SUM.jpg",
+        swatches: ["https://content.backcountry.com/images/items/160/TNF/TNFZEBT/SUM.jpg"], rating: 4.5, reviews: 12 },
+      { brand: "Marmot", name: "PreCip Evo Flex Jacket - Men's", price: 144.95, category: "mens-jackets",
+        img: "https://content.backcountry.com/images/items/large/MAR/MARZA8T/NAUBLU.jpg",
+        swatches: [
+          "https://content.backcountry.com/images/items/160/MAR/MARZA8T/NAUBLU.jpg",
+          "https://content.backcountry.com/images/items/160/MAR/MARZA8T/BLA.jpg",
+          "https://content.backcountry.com/images/items/160/MAR/MARZA8T/DARSTE.jpg"
+        ], rating: 4.0, reviews: 28 },
+      { brand: "The North Face", name: "Canyonlands Hybrid Jacket - Men's", price: 67.50, priceOrig: 200.00, offPct: 55, category: "mens-jackets", badge: "55% Off",
+        img: "https://content.backcountry.com/images/items/large/TNF/TNFZC8B/SUMNAV.jpg",
+        swatches: [
+          "https://content.backcountry.com/images/items/160/TNF/TNFZC8B/SUMNAV.jpg",
+          "https://content.backcountry.com/images/items/160/TNF/TNFZC8B/TNFBLANPF.jpg"
+        ], rating: 4.5, reviews: 47 },
+      { brand: "Patagonia", name: "Better Sweater 1/2-Zip Pullover - Men's", price: 113.40, priceOrig: 199.00, offPct: 40, category: "mens-hoodies", badge: "Gifts for Grads",
+        img: "https://content.backcountry.com/images/items/large/TNF/TNFZEBT/SUM.jpg", swatches: [], rating: 5.0, reviews: 1 },
+      { brand: "Backcountry", name: "Rambler Stretch Canvas Workpant - Men's", price: 99.00, category: "mens-pants", badge: "New Arrival",
+        img: "https://content.backcountry.com/images/items/large/MAR/MARZA8T/NAUBLU.jpg", swatches: [], rating: 4.2, reviews: 9 },
+      { brand: "Patagonia", name: "Terrebonne Jogger - Men's", price: 64.35, priceOrig: 99.00, offPct: 35, category: "mens-pants", badge: "Gifts for Grads",
+        img: "https://content.backcountry.com/images/items/large/TNF/TNFZC8B/SUMNAV.jpg", swatches: [], rating: 3.5, reviews: 2 }
+    ],
+    womens: [
+      { brand: "Patagonia", name: "Better Sweater Hoodie - Women's", price: 119.00, category: "womens-hoodies",
+        img: "https://content.backcountry.com/images/items/large/TNF/TNFZEBT/SUM.jpg", swatches: [], rating: 4.6, reviews: 34 },
+      { brand: "Arc'teryx", name: "Atom LT Hoody - Women's", price: 199.00, category: "womens-jackets",
+        img: "https://content.backcountry.com/images/items/large/MAR/MARZA8T/NAUBLU.jpg", swatches: [], rating: 4.8, reviews: 87 }
+    ],
+    sale: [
+      { brand: "The North Face", name: "Canyonlands Hybrid Jacket - Men's", price: 67.50, priceOrig: 200.00, offPct: 55, category: "mens-jackets", badge: "55% Off",
+        img: "https://content.backcountry.com/images/items/large/TNF/TNFZC8B/SUMNAV.jpg", swatches: [], rating: 4.5, reviews: 47 },
+      { brand: "The North Face", name: "Evolution Edge Of Light Half Dome Hoodie - Men's", price: 32.50, priceOrig: 65.00, offPct: 50, category: "mens-hoodies", badge: "50% Off",
+        img: "https://content.backcountry.com/images/items/large/TNF/TNFZEBT/SUM.jpg", swatches: [], rating: 4.5, reviews: 12 },
+      { brand: "Patagonia", name: "Better Sweater 1/2-Zip Pullover - Men's", price: 113.40, priceOrig: 199.00, offPct: 40, category: "mens-hoodies", badge: "40% Off",
+        img: "https://content.backcountry.com/images/items/large/TNF/TNFZEBT/SUM.jpg", swatches: [], rating: 5.0, reviews: 1 }
+    ]
   };
 
-  await osAddTags(tags);
-  await osTrackEvent('preferences_updated', tags);
+  // ============================================================
+  // ONESIGNAL HELPERS
+  // ============================================================
+  function logOS(method, data) {
+    osLogs.unshift({ method, data, time: new Date().toLocaleTimeString() });
+    osLogs = osLogs.slice(0, 60);
+    renderOSLogs();
+    console.log(`[OneSignal] ${method}:`, data);
+  }
+  function renderOSLogs() {
+    const c = document.getElementById('osLogEntries');
+    if (!c) return;
+    c.innerHTML = osLogs.map(l =>
+      `<div class="log-entry"><span class="time">${l.time}</span><span class="method">${l.method}()</span><span class="data">${l.data}</span></div>`
+    ).join('');
+  }
+  function clearOSLog() { osLogs = []; renderOSLogs(); }
+  function toggleDebug() { document.getElementById('osDebug').classList.toggle('open'); }
 
-  closeModal('preferencesModal');
-  showNotification('Preferences saved successfully!');
-}
+  function osLogin(uuid) {
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.login(uuid);
+      logOS('login', `externalId: ${uuid}`);
+    });
+  }
+  function osLogout() {
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.logout();
+      logOS('logout', 'User logged out');
+    });
+  }
+  function osAddTags(tags) {
+    OneSignalDeferred.push(async function(OneSignal) {
+      OneSignal.User.addTags(tags);
+      logOS('addTags', JSON.stringify(tags));
+    });
+  }
+  function osAddEmail(email) {
+    if (!email) return;  // never call with empty
+    OneSignalDeferred.push(async function(OneSignal) {
+      OneSignal.User.addEmail(email);
+      logOS('addEmail', email);
+    });
+  }
+  function osAddSms(phone) {
+    if (!phone) return;  // never call with empty
+    OneSignalDeferred.push(async function(OneSignal) {
+      OneSignal.User.addSms(phone);
+      logOS('addSms', phone);
+    });
+  }
+  function osTrackEvent(name, properties) {
+    OneSignalDeferred.push(async function(OneSignal) {
+      OneSignal.User.trackEvent(name, properties || {});
+      logOS('trackEvent', `${name} ${JSON.stringify(properties || {})}`);
+    });
+  }
 
-// ===== CART FUNCTIONS =====
-function addToCart(serviceId) {
-  const service = streamingServices.find(s => s.id === serviceId);
-  if (!service || cart.find(c => c.id === serviceId)) return;
+  // ============================================================
+  // CENTRAL USER IDENTITY API
+  // ============================================================
+  async function apiRegister(username) {
+    const res = await fetch(`${IDENTITY_API}/users/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, app_id: APP_ID })
+    });
+    return res.json();
+  }
+  async function apiLogin(username) {
+    const res = await fetch(`${IDENTITY_API}/users/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, app_id: APP_ID })
+    });
+    return res.json();
+  }
+  async function apiLogout(externalId) {
+    const res = await fetch(`${IDENTITY_API}/users/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ external_id: externalId, app_id: APP_ID })
+    });
+    return res.json();
+  }
+  async function apiGetUser(externalId) {
+    const res = await fetch(`${IDENTITY_API}/users/${externalId}`);
+    if (!res.ok) return { status: 'not found' };
+    return res.json();
+  }
 
-  cart.push(service);
-  updateCartUI();
+  // ============================================================
+  // AUTH FLOWS
+  // ============================================================
+  function showLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function showRegisterError(msg) {
+    const el = document.getElementById('registerError');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function clearAuthErrors() {
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('registerError').classList.remove('show');
+  }
 
-  // Track event
-  osTrackEvent('add_to_cart', {
-    service_id: serviceId,
-    service_name: service.name,
-    cart_size: cart.length.toString()
+  async function handleRegister(e) {
+    e.preventDefault();
+    clearAuthErrors();
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const summitOptIn = document.getElementById('regSummit').checked;
+    if (!name) return;
+
+    let resp;
+    try {
+      resp = await apiRegister(name);
+      logOS('apiRegister', `username=${name}, app_id=${APP_ID}`);
+    } catch (err) {
+      showRegisterError('Network error — please try again.');
+      return;
+    }
+
+    if (resp.status !== 'success') {
+      if (resp.message && String(resp.message).toLowerCase().includes('taken')) {
+        showRegisterError(`That name is already in use. Try signing in instead.`);
+      } else {
+        showRegisterError(resp.message || 'Registration failed.');
+      }
+      return;
+    }
+
+    const externalId = resp.external_id;
+    localStorage.setItem(STORAGE_KEY, externalId);
+
+    currentUser = {
+      name,
+      email,
+      phone,
+      uuid: externalId,
+      summit_member: summitOptIn,
+      summit_tier: summitOptIn ? 'summit' : null
+    };
+
+    osLogin(externalId);
+    osAddEmail(email);
+    osAddSms(phone);
+
+    const tags = {
+      registration_date: new Date().toISOString().split('T')[0],
+      summit_member: summitOptIn ? 'true' : 'false'
+    };
+    if (summitOptIn) tags.summit_tier = 'summit';
+    osAddTags(tags);
+
+    if (summitOptIn) {
+      osTrackEvent('summit_signup', {
+        tier: 'summit',
+        opt_in_email: !!email
+      });
+    }
+
+    closeModal('registerModal');
+    updateUIForLoggedIn();
+    showToast(summitOptIn ? `Welcome to Summit+, ${name}!` : `Welcome, ${name}!`, 'success');
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    clearAuthErrors();
+    const name = document.getElementById('loginName').value.trim();
+    if (!name) return;
+
+    let resp;
+    try {
+      resp = await apiLogin(name);
+      logOS('apiLogin', `username=${name}, app_id=${APP_ID}`);
+    } catch (err) {
+      showLoginError('Network error — please try again.');
+      return;
+    }
+
+    if (resp.status !== 'success') {
+      if (resp.message && String(resp.message).toLowerCase().includes('not found')) {
+        showLoginError(`We couldn't find that account. Create a new one?`);
+      } else {
+        showLoginError(resp.message || 'Sign-in failed.');
+      }
+      return;
+    }
+
+    const externalId = resp.external_id;
+    localStorage.setItem(STORAGE_KEY, externalId);
+    currentUser = {
+      name: resp.username || name,
+      email: '',
+      phone: '',
+      uuid: externalId,
+      summit_member: false,
+      summit_tier: null
+    };
+
+    osLogin(externalId);
+    osAddTags({ last_login: new Date().toISOString().split('T')[0] });
+
+    closeModal('loginModal');
+    updateUIForLoggedIn();
+    showToast(`Welcome back, ${currentUser.name}!`, 'success');
+  }
+
+  async function handleLogout() {
+    const externalId = localStorage.getItem(STORAGE_KEY);
+    if (externalId) {
+      try { await apiLogout(externalId); logOS('apiLogout', `external_id=${externalId}, app_id=${APP_ID}`); } catch (_) {}
+    }
+    osLogout();
+    localStorage.removeItem(STORAGE_KEY);
+    currentUser = null;
+    cart = [];
+    updateCartUI();
+    closeModal('accountModal');
+    closeDropdown();
+    updateUIForLoggedOut();
+    showToast('You have been signed out.', 'success');
+  }
+
+  // ============================================================
+  // SESSION RESTORE — server-side validation on page load
+  // ============================================================
+  OneSignalDeferred.push(async function(OneSignal) {
+    logOS('init', `appId: ${APP_ID}`);
+    const cachedId = localStorage.getItem(STORAGE_KEY);
+    if (!cachedId) { updateUIForLoggedOut(); return; }
+    try {
+      const resp = await apiGetUser(cachedId);
+      logOS('apiGetUser', `external_id=${cachedId}`);
+      if (resp.status === 'success' && resp.external_id) {
+        currentUser = {
+          name: resp.username || 'Member',
+          email: resp.email || '',
+          phone: resp.phone || '',
+          uuid: resp.external_id,
+          summit_member: !!resp.summit_member,
+          summit_tier: resp.summit_tier || null
+        };
+        await OneSignal.login(resp.external_id);
+        logOS('login', `Session restored: ${resp.external_id}`);
+        updateUIForLoggedIn();
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+        updateUIForLoggedOut();
+      }
+    } catch (err) {
+      console.warn('Session check failed:', err);
+      updateUIForLoggedOut();
+    }
   });
 
-  // Update button
-  const btn = document.querySelector(`[data-service="${serviceId}"]`);
-  if (btn) {
-    btn.textContent = 'Added ✓';
-    btn.classList.add('added');
+  // ============================================================
+  // UI STATE — auth state rules
+  // ============================================================
+  function updateUIForLoggedIn() {
+    const btn = document.getElementById('profileBtn');
+    btn.classList.add('logged-in');
+    btn.textContent = currentUser.name.charAt(0).toUpperCase();
+    document.getElementById('signInLabel').style.display = 'none';
+    document.getElementById('dropdownName').textContent = currentUser.name;
+    document.getElementById('dropdownEmail').textContent = currentUser.email || `UUID: ${currentUser.uuid}`;
+  }
+  function updateUIForLoggedOut() {
+    const btn = document.getElementById('profileBtn');
+    btn.classList.remove('logged-in');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+    document.getElementById('signInLabel').style.display = 'flex';
+    closeDropdown();
   }
 
-  showNotification(`${service.name} added to cart!`);
-}
-
-function removeFromCart(serviceId) {
-  cart = cart.filter(c => c.id !== serviceId);
-  updateCartUI();
-
-  osTrackEvent('remove_from_cart', { service_id: serviceId });
-
-  // Reset button
-  const btn = document.querySelector(`[data-service="${serviceId}"]`);
-  if (btn) {
-    btn.textContent = 'Add';
-    btn.classList.remove('added');
+  function handleProfileClick() {
+    if (!currentUser) {
+      showRegister();
+    } else {
+      const dd = document.getElementById('userDropdown');
+      dd.classList.toggle('open');
+    }
   }
-}
+  function closeDropdown() {
+    const dd = document.getElementById('userDropdown');
+    if (dd) dd.classList.remove('open');
+  }
+  document.addEventListener('click', (e) => {
+    const dd = document.getElementById('userDropdown');
+    const btn = document.getElementById('profileBtn');
+    if (dd && dd.classList.contains('open') && !dd.contains(e.target) && !btn.contains(e.target)) {
+      closeDropdown();
+    }
+  });
 
-function updateCartUI() {
-  const badge = document.getElementById('cartBadge');
-  const items = document.getElementById('cartItems');
-  const empty = document.getElementById('cartEmpty');
-  const footer = document.getElementById('cartFooter');
-  const total = document.getElementById('cartTotal');
+  // ============================================================
+  // ACCOUNT VIEW
+  // ============================================================
+  function openAccount() {
+    if (!currentUser) return;
+    closeDropdown();
+    document.getElementById('accountAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+    document.getElementById('accountName').textContent = currentUser.name;
+    document.getElementById('accountUUID').textContent = `UUID: ${currentUser.uuid}`;
+    document.getElementById('accountEmail').value = currentUser.email || '';
+    document.getElementById('accountPhone').value = currentUser.phone || '';
+    document.getElementById('accountSummitBadge').style.display = currentUser.summit_member ? 'inline-flex' : 'none';
+    document.getElementById('accountModal').classList.add('open');
+  }
+  function saveAccountEmail() {
+    const v = document.getElementById('accountEmail').value.trim();
+    if (!v) { showToast('Email cannot be empty.', 'error'); return; }
+    currentUser.email = v;
+    osAddEmail(v);
+    showToast('Email saved.', 'success');
+  }
+  function saveAccountPhone() {
+    const v = document.getElementById('accountPhone').value.trim();
+    if (!v) { showToast('Phone cannot be empty.', 'error'); return; }
+    if (!v.startsWith('+')) { showToast('Phone must be E.164 format (e.g. +15551234567).', 'error'); return; }
+    currentUser.phone = v;
+    osAddSms(v);
+    showToast('Mobile saved.', 'success');
+  }
+  function saveAccountTag() {
+    const k = document.getElementById('tagKey').value.trim();
+    const v = document.getElementById('tagValue').value.trim();
+    if (!k || !v) { showToast('Tag key and value are required.', 'error'); return; }
+    osAddTags({ [k]: v });
+    document.getElementById('tagKey').value = '';
+    document.getElementById('tagValue').value = '';
+    showToast(`Tag saved: ${k} = ${v}`, 'success');
+  }
 
-  badge.textContent = cart.length;
-  badge.classList.toggle('show', cart.length > 0);
+  // ============================================================
+  // MODALS
+  // ============================================================
+  function showRegister() { clearAuthErrors(); closeModal('loginModal'); document.getElementById('registerModal').classList.add('open'); }
+  function showLogin()    { clearAuthErrors(); closeModal('registerModal'); document.getElementById('loginModal').classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  if (cart.length === 0) {
-    empty.style.display = 'block';
-    footer.style.display = 'none';
-    items.innerHTML = '<div class="cart-empty">Your cart is empty</div>';
-  } else {
-    empty.style.display = 'none';
-    footer.style.display = 'block';
-    items.innerHTML = cart.map(s => `
-      <div class="cart-item">
-        <img src="${s.logo}" alt="${s.name}">
-        <div class="cart-item-info">
-          <h4>${s.name}</h4>
-          <p>${s.tier}</p>
+  // ============================================================
+  // BROWSE / CATEGORY NAVIGATION
+  // ============================================================
+  const CATEGORY_LABELS = {
+    mens: "Men's Clothing",
+    womens: "Women's Clothing",
+    kids: "Kids' Clothing",
+    footwear: "Footwear",
+    camp: "Camp & Hike",
+    bike: "Bike",
+    climb: "Climb",
+    travel: "Travel",
+    ski: "Ski",
+    snowboard: "Snowboard",
+    activities: "Activities",
+    brands: "Featured Brands",
+    guides: "Adventure Guides",
+    sale: "Sale",
+    "mothers-day": "Mother's Day Gifts"
+  };
+
+  function browseCategory(cat) {
+    const label = CATEGORY_LABELS[cat] || cat;
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('browsePage').classList.add('active');
+    document.getElementById('browseTitle').textContent = label;
+    document.getElementById('browseBreadcrumb').textContent = label;
+
+    const products = PRODUCTS_BY_CATEGORY[cat] || PRODUCTS_BY_CATEGORY.mens;
+    document.getElementById('browseResultsCount').textContent = products.length;
+    renderProducts(products);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    osAddTags({ favourite_category: cat, last_browsed_category: cat });
+    osTrackEvent('category_browsed', { category_name: cat, category_label: label });
+  }
+
+  function goHome() {
+    document.getElementById('homePage').classList.remove('hidden');
+    document.getElementById('browsePage').classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function filterChip(chip) {
+    showToast(`Filter: ${chip}`, 'success');
+    osTrackEvent('filter_applied', { filter: chip });
+  }
+
+  function renderProducts(products) {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = products.map((p, i) => `
+      <div class="product-card" data-idx="${i}" onclick="onProductClick(${i})">
+        ${p.badge ? `<span class="card-badge">${p.badge}</span>` : ''}
+        <div class="product-card-image">
+          <img src="${p.img}" alt="${p.name.replace(/"/g, '&quot;')}">
         </div>
-        <button class="cart-item-remove" onclick="removeFromCart('${s.id}')">Remove</button>
+        ${p.swatches && p.swatches.length ? `
+          <div class="product-card-swatches">
+            ${p.swatches.slice(0, 5).map((s, j) => `<div class="swatch ${j === 0 ? 'active' : ''}" style="background-image:url(${s});background-size:cover"></div>`).join('')}
+          </div>
+        ` : ''}
+        <div class="brand">${p.brand}</div>
+        <div class="name">${p.name}</div>
+        <div class="price-row">
+          <span class="price">$${p.price.toFixed(2)}</span>
+          ${p.priceOrig ? `<span class="price-orig">$${p.priceOrig.toFixed(2)}</span><span class="price-off">${p.offPct}% off</span>` : ''}
+        </div>
+        ${p.rating ? `<div class="stars">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5 - Math.round(p.rating))}<span class="count">(${p.reviews || 0})</span></div>` : ''}
+        <button class="add-to-cart" onclick="event.stopPropagation();onAddToCart(${i})">Add To Cart</button>
       </div>
     `).join('');
-    total.textContent = `R$ 99,90/mo`;
-  }
-}
-
-function toggleCart() {
-  const overlay = document.getElementById('cartOverlay');
-  const drawer = document.getElementById('cartDrawer');
-  const isOpen = drawer.classList.contains('open');
-  overlay.classList.toggle('open');
-  drawer.classList.toggle('open');
-  if (!isOpen) {
-    osTrackEvent('cart_viewed', { items_count: cart.length.toString() });
-  }
-}
-
-async function activateServices() {
-  if (!currentUser) {
-    toggleCart();
-    showRegister();
-    return;
+    window._currentProducts = products;
   }
 
-  const serviceNames = cart.map(s => s.name).join(', ');
-  const tags = { active_services: serviceNames, account_type: 'subscriber', plan_activated: 'true' };
+  function onProductClick(idx) {
+    const p = window._currentProducts[idx];
+    osAddTags({ last_viewed_product: p.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase().slice(0, 60) });
+    osTrackEvent('product_viewed', {
+      product_name: p.name,
+      brand: p.brand,
+      price: p.price,
+      category: p.category
+    });
+    showToast(`Viewing ${p.name}`, 'success');
+  }
 
-  await osAddTags(tags);
-  await osTrackEvent('services_activated', {
-    services: serviceNames,
-    service_count: cart.length.toString(),
-    plan_value: '99.90'
-  });
+  function onAddToCart(idx) {
+    const p = window._currentProducts[idx];
+    cart.push({ ...p, quantity: 1 });
+    updateCartUI();
+    osTrackEvent('added_to_cart', {
+      product_name: p.name,
+      brand: p.brand,
+      price: p.price,
+      quantity: 1
+    });
+    showToast(`Added "${p.name}" to cart.`, 'success');
+  }
 
-  toggleCart();
-  document.getElementById('activationMsg').textContent =
-    `The following services have been activated: ${serviceNames}`;
-  document.getElementById('activationModal').classList.add('open');
+  function updateCartUI() {
+    document.getElementById('cartCount').textContent = cart.length;
+  }
 
-  // Reset cart
-  cart.forEach(s => {
-    const btn = document.querySelector(`[data-service="${s.id}"]`);
-    if (btn) { btn.textContent = 'Adicionar'; btn.classList.remove('added'); }
-  });
-  cart = [];
+  function goCart() {
+    showToast(`Cart has ${cart.length} item(s). Checkout is not part of this demo.`, 'success');
+  }
+
+  function handleSearch(e) {
+    if (e.key === 'Enter') {
+      const q = e.target.value.trim();
+      if (!q) return;
+      osTrackEvent('search_submitted', { query: q });
+      browseCategory('mens');
+      showToast(`Searching for "${q}"…`, 'success');
+    }
+  }
+
+  function trackPromo(promo) {
+    osTrackEvent('promo_clicked', { promo_id: promo });
+    showToast(`Promo: ${promo}`, 'success');
+  }
+
+  function showSummitInfo() {
+    if (!currentUser) {
+      showRegister();
+      return;
+    }
+    if (currentUser.summit_member) {
+      showToast(`You're already a Summit+ member.`, 'success');
+    } else {
+      currentUser.summit_member = true;
+      currentUser.summit_tier = 'summit';
+      osAddTags({ summit_member: 'true', summit_tier: 'summit' });
+      osTrackEvent('summit_signup', { tier: 'summit', opt_in_email: !!currentUser.email });
+      showToast(`Welcome to Summit+!`, 'success');
+    }
+  }
+
+  // ============================================================
+  // TOAST
+  // ============================================================
+  let toastTimer = null;
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || 'success');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  renderProducts(PRODUCTS_BY_CATEGORY.mens);
   updateCartUI();
-}
-
-// ===== SUBSCRIBE HANDLER =====
-async function handleSubscribe(planId) {
-  osTrackEvent('subscribe_clicked', { plan_id: planId });
-  if (!currentUser) {
-    showRegister();
-  } else {
-    await osAddTags({ selected_plan: planId });
-    showNotification('Plan selected! Processing your subscription...');
-    setTimeout(() => {
-      osTrackEvent('plan_subscribed', { plan_id: planId });
-      showNotification('Subscription activated successfully!');
-    }, 1500);
-  }
-}
-
-// ===== NAV TRACKING =====
-function trackNavClick(section) {
-  osTrackEvent('nav_click', { section: section });
-}
-
-// ===== NOTIFICATION BANNER =====
-function showNotification(msg) {
-  const banner = document.getElementById('notifBanner');
-  document.getElementById('notifText').textContent = msg;
-  banner.classList.add('show');
-  setTimeout(() => banner.classList.remove('show'), 4000);
-}
-function hideNotification() {
-  document.getElementById('notifBanner').classList.remove('show');
-}
-
-// ===== HERO SLIDER =====
-function initHero() {
-  const slides = document.querySelectorAll('.hero-slide');
-  const dotsContainer = document.getElementById('heroDots');
-
-  slides.forEach((_, i) => {
-    const dot = document.createElement('div');
-    dot.className = 'dot' + (i === 0 ? ' active' : '');
-    dot.onclick = () => goToSlide(i);
-    dotsContainer.appendChild(dot);
-  });
-
-  setInterval(() => {
-    goToSlide((heroIndex + 1) % slides.length);
-  }, 5000);
-}
-
-function goToSlide(index) {
-  const slides = document.querySelectorAll('.hero-slide');
-  const dots = document.querySelectorAll('.hero-dots .dot');
-  slides[heroIndex].classList.remove('active');
-  dots[heroIndex].classList.remove('active');
-  heroIndex = index;
-  slides[heroIndex].classList.add('active');
-  dots[heroIndex].classList.add('active');
-}
-
-// ===== RENDER SERVICES GRID =====
-function renderServices() {
-  const grid = document.getElementById('servicesGrid');
-  grid.innerHTML = streamingServices.map(s => `
-    <div class="service-card" onclick="osTrackEvent('service_viewed', {service: '${s.id}'})">
-      <img class="service-card-img" src="${s.img}" alt="${s.name}">
-      <div class="service-card-body">
-        <div class="service-card-logo">
-          <img src="${s.logo}" alt="${s.name}">
-          <span>${s.name}</span>
-        </div>
-        <div class="service-card-features">${s.features.replace(/\n/g, '<br>')}</div>
-        <div class="service-card-footer">
-          <span class="service-included">${s.price}</span>
-          <button class="btn-add-cart" data-service="${s.id}" onclick="event.stopPropagation(); addToCart('${s.id}')">Add</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ===== RENDER CONTENT CAROUSELS =====
-function renderCarousels() {
-  const seriesEl = document.getElementById('seriesCarousel');
-  const moviesEl = document.getElementById('moviesCarousel');
-
-  seriesEl.innerHTML = seriesData.map(s => `
-    <div class="content-card" style="background:${s.color}" onclick="osTrackEvent('content_clicked', {title: '${s.title}', type: 'series'})">
-      <div class="content-title">${s.title}</div>
-    </div>
-  `).join('');
-
-  moviesEl.innerHTML = moviesData.map(m => `
-    <div class="content-card" style="background:${m.color}" onclick="osTrackEvent('content_clicked', {title: '${m.title}', type: 'movie'})">
-      <div class="content-title">${m.title}</div>
-    </div>
-  `).join('');
-}
-
-// ===== HEADER SCROLL =====
-window.addEventListener('scroll', () => {
-  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 50);
-});
-
-// ===== DEBUG PANEL =====
-function toggleDebug() {
-  document.getElementById('osDebug').classList.toggle('show');
-}
-
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  initHero();
-  renderServices();
-  renderCarousels();
-});
 </script>
 </body>
 </html>
